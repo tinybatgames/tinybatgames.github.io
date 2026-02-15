@@ -8,9 +8,10 @@
     <link rel="icon" type="image/png" href="logo.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         :root {
-            --primary-color: #f39c12; /* Karakteristik Turuncu/Altın rengi */
+            --primary-color: #f39c12;
             --bg-color: #0d0d0d;
             --card-bg: #181818;
             --text-main: #ffffff;
@@ -18,7 +19,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
@@ -36,10 +37,12 @@
             border-bottom: 3px solid var(--primary-color);
         }
 
+        /* Logo Transparanlık Ayarı */
         .header-logo {
             width: 120px;
             height: auto;
             margin-bottom: 20px;
+            background: transparent !important; /* Beyazlığı önler */
             filter: drop-shadow(0 5px 15px rgba(243, 156, 18, 0.2));
         }
 
@@ -59,9 +62,9 @@
             margin: 15px auto 0;
         }
 
-        /* --- Ana İçerik ve Grid --- */
+        /* --- Grid Düzeni (3-4'lü Kolon) --- */
         .container {
-            max-width: 1400px; /* Geniş ekranlarda 4'lü dizilim için */
+            max-width: 1400px; /* Geniş ekranlarda daha fazla oyun sığması için */
             margin: 60px auto;
             padding: 0 30px;
             flex-grow: 1;
@@ -76,8 +79,8 @@
 
         .games-grid {
             display: grid;
-            /* 250px minimum ile geniş ekranlarda 4, orta ekranlarda 3, mobilde 1 kolon olur */
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            /* 250px alt sınırı ile geniş ekranda 4'lü, tablette 2-3'lü, mobilde tekli olur */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
             gap: 25px;
         }
 
@@ -99,27 +102,28 @@
             box-shadow: 0 15px 35px rgba(243, 156, 18, 0.15);
         }
 
+        /* Oyun İkonları Transparanlık Ayarı */
         .game-icon {
-            width: 85px;
-            height: 85px;
+            width: 90px;
+            height: 90px;
             border-radius: 20px;
             margin: 0 auto 15px;
-            background: #333;
+            background: transparent !important; /* Beyazlığı önler */
             object-fit: cover;
             box-shadow: 0 6px 12px rgba(0,0,0,0.4);
         }
 
         .game-card h3 {
             margin: 10px 0;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             color: var(--primary-color);
         }
 
         .game-card p {
             color: var(--text-dim);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             line-height: 1.5;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             flex-grow: 1;
         }
 
@@ -127,14 +131,13 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             background-color: var(--primary-color);
             color: #000;
-            padding: 12px 15px;
+            padding: 12px 20px;
             text-decoration: none;
             font-weight: 700;
-            font-size: 0.9rem;
-            border-radius: 10px;
+            border-radius: 12px;
             transition: background 0.3s;
         }
 
@@ -171,10 +174,10 @@
             font-size: 0.85rem;
         }
 
-        /* --- Responsive Ayarlar --- */
+        /* --- Mobil Ayarlar --- */
         @media (max-width: 600px) {
             .header-logo { width: 90px; }
-            header h1 { font-size: 2.5rem; }
+            header h1 { font-size: 2.4rem; }
             .container { padding: 0 20px; }
             .games-grid { grid-template-columns: 1fr; }
         }
@@ -185,46 +188,46 @@
 <header>
     <img src="logo.png" alt="TinyBatGames Logo" class="header-logo">
     <h1>TinyBatGames</h1>
-    <p>Independent game studio focusing on high-quality mobile simulators and arcade experiences.</p>
+    <p>Creating immersive mobile simulators and high-speed arcade experiences for gamers worldwide.</p>
 </header>
 
 <div class="container">
-    <h2 class="section-title">My Games</h2>
+    <h2 class="section-title">Latest Releases</h2>
     <div class="games-grid">
         
         <div class="game-card">
             <img src="https://play-lh.googleusercontent.com/w40WtWsNy5_mC0p0Nd_uyjOx381SqmCGszFpmPDeU3VgWPeA4UXmDm2xhg1Kuvuwiwc=w240-h480-rw" alt="City Taxi Driver 3D" class="game-icon">
             <h3>City Taxi Driver 3D</h3>
-            <p>Step into the driver's seat and master the city streets. Pick up passengers and upgrade your fleet.</p>
+            <p>Master the urban chaos! Pick up passengers and build your taxi empire in a realistic open world.</p>
             <a href="https://play.google.com/store/apps/details?id=com.tinybatgames.CityTaxiDriver" class="btn-play">
-                <i class="fab fa-google-play"></i> Play on Android
+                <i class="fab fa-google-play"></i> Get on Android
             </a>
         </div>
 
         <div class="game-card">
             <img src="https://play-lh.googleusercontent.com/royFQw9Kc7g09diFog8pcC6TeyCmFleMrjWk4IXxY8kPy5Jsj69F2RIPx_fk0g0D-Vc=w240-h480-rw" alt="2 Player Racing" class="game-icon">
             <h3>2 Player Car Racing</h3>
-            <p>Local multiplayer fun! Challenge your friends in split-screen racing action on a single device.</p>
+            <p>Classic split-screen fun. Challenge your friends to a high-speed duel on a single device.</p>
             <a href="https://play.google.com/store/apps/details?id=com.tinybatgames.TwoPlayerRacing" class="btn-play">
-                <i class="fab fa-google-play"></i> Play on Android
+                <i class="fab fa-google-play"></i> Get on Android
             </a>
         </div>
 
         <div class="game-card">
             <img src="https://play-lh.googleusercontent.com/nm3ijO7jwJZdc9rFmVjibpXDuxiY0W7xkG7iztNlrmyOWWirvplgvzP5oQPxGYsLLwEzfPbIuQxmgUAA1kK0wA=w240-h480-rw" alt="Traffic Racer" class="game-icon">
             <h3>Traffic Racer</h3>
-            <p>Navigate through heavy traffic in this intense challenge. Don't crash and outscore your opponent!</p>
+            <p>Dodge cars and push your limits. Intense traffic dodging action with multiplayer capabilities.</p>
             <a href="https://play.google.com/store/apps/developer?id=tinybatgames" class="btn-play">
-                <i class="fab fa-google-play"></i> Play on Android
+                <i class="fab fa-google-play"></i> Get on Android
             </a>
         </div>
 
         <div class="game-card">
             <img src="https://play-lh.googleusercontent.com/placeholder-icon" alt="Pixel TD" class="game-icon">
             <h3>Pixel Tower Defense</h3>
-            <p>Strategy meets retro pixel art. Defend your base against waves of enemies using various towers.</p>
+            <p>A strategic retro journey. Deploy towers and upgrade your defenses to survive the pixel waves.</p>
             <a href="https://play.google.com/store/apps/details?id=com.tinybatgames.pixeltd" class="btn-play">
-                <i class="fab fa-google-play"></i> Play on Android
+                <i class="fab fa-google-play"></i> Get on Android
             </a>
         </div>
 
@@ -233,10 +236,10 @@
 
 <footer>
     <div class="social-links">
-        <a href="https://play.google.com/store/apps/developer?id=tinybatgames" title="Google Play"><i class="fab fa-google-play"></i></a>
-        <a href="mailto:tinybatgames@gmail.com" title="Email Us"><i class="fas fa-envelope"></i></a>
+        <a href="https://play.google.com/store/apps/developer?id=tinybatgames" title="Google Play Store"><i class="fab fa-google-play"></i></a>
+        <a href="mailto:tinybatgames@gmail.com" title="Contact Email"><i class="fas fa-envelope"></i></a>
     </div>
-    <p class="copyright">© 2026 TinyBatGames. Built for performance. | <a href="app-ads.txt" style="color:#555; text-decoration:none;">app-ads.txt</a></p>
+    <p class="copyright">© 2026 TinyBatGames. All rights reserved. | <a href="app-ads.txt" style="color:#555; text-decoration:none;">app-ads.txt</a></p>
 </footer>
 
 </body>
