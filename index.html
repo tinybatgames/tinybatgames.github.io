@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TinyBatGames | Indie Game Studio</title>
+    
+    <link rel="icon" type="image/png" href="logo.png">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #f39c12;
+            --primary-color: #f39c12; /* Karakteristik Turuncu/Altın rengi */
             --bg-color: #0d0d0d;
             --card-bg: #181818;
             --text-main: #ffffff;
@@ -25,12 +28,19 @@
             min-height: 100vh;
         }
 
-        /* --- Header --- */
+        /* --- Header Bölümü --- */
         header {
-            padding: 80px 20px;
+            padding: 60px 20px;
             text-align: center;
             background: radial-gradient(circle at center, #222 0%, #0d0d0d 100%);
             border-bottom: 3px solid var(--primary-color);
+        }
+
+        .header-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 5px 15px rgba(243, 156, 18, 0.2));
         }
 
         header h1 {
@@ -49,9 +59,9 @@
             margin: 15px auto 0;
         }
 
-        /* --- Ana İçerik --- */
+        /* --- Ana İçerik ve Grid --- */
         .container {
-            max-width: 1400px; /* Daha geniş grid için genişletildi */
+            max-width: 1400px; /* Geniş ekranlarda 4'lü dizilim için */
             margin: 60px auto;
             padding: 0 30px;
             flex-grow: 1;
@@ -66,7 +76,7 @@
 
         .games-grid {
             display: grid;
-            /* 250px minimum genişlik sayesinde 1400px ekranlarda 4-5 tane yan yana sığabilir */
+            /* 250px minimum ile geniş ekranlarda 4, orta ekranlarda 3, mobilde 1 kolon olur */
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
             gap: 25px;
         }
@@ -161,8 +171,9 @@
             font-size: 0.85rem;
         }
 
-        /* --- Responsive --- */
+        /* --- Responsive Ayarlar --- */
         @media (max-width: 600px) {
+            .header-logo { width: 90px; }
             header h1 { font-size: 2.5rem; }
             .container { padding: 0 20px; }
             .games-grid { grid-template-columns: 1fr; }
@@ -172,6 +183,7 @@
 <body>
 
 <header>
+    <img src="logo.png" alt="TinyBatGames Logo" class="header-logo">
     <h1>TinyBatGames</h1>
     <p>Independent game studio focusing on high-quality mobile simulators and arcade experiences.</p>
 </header>
@@ -200,7 +212,7 @@
 
         <div class="game-card">
             <img src="https://play-lh.googleusercontent.com/nm3ijO7jwJZdc9rFmVjibpXDuxiY0W7xkG7iztNlrmyOWWirvplgvzP5oQPxGYsLLwEzfPbIuQxmgUAA1kK0wA=w240-h480-rw" alt="Traffic Racer" class="game-icon">
-            <h3>2 Player Traffic Racer</h3>
+            <h3>Traffic Racer</h3>
             <p>Navigate through heavy traffic in this intense challenge. Don't crash and outscore your opponent!</p>
             <a href="https://play.google.com/store/apps/developer?id=tinybatgames" class="btn-play">
                 <i class="fab fa-google-play"></i> Play on Android
