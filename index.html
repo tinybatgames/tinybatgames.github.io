@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyBatGames | Indie Game Studio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #f39c12;
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-color: #eeeeee;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 60px 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin: 0;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(243, 156, 18, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .game-info {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-info h3 {
+            margin: 0 0 15px 0;
+            color: var(--primary-color);
+            font-size: 1.4rem;
+        }
+
+        .game-info p {
+            font-size: 0.95rem;
+            color: #bbb;
+            margin-bottom: 20px;
+        }
+
+        .btn-play {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #000;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            text-align: center;
+            transition: background 0.3s;
+            margin-top: auto;
+        }
+
+        .btn-play:hover {
+            background-color: #e67e22;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>TinyBatGames</h1>
+    <p>Creating immersive mobile experiences for everyone.</p>
+</header>
+
+<div class="container">
+    <div class="games-grid">
+        
+        <div class="game-card">
+            <div class="game-info">
+                <h3>City Taxi Driver 3D</h3>
+                <p>Experience the life of a taxi driver in a vast open world. Customize your car, pick up passengers, and navigate through realistic city traffic.</p>
+                <a href="https://play.google.com/store/apps/details?id=com.tinybatgames.CityTaxiDriver" class="btn-play">
+                    <i class="fab fa-google-play"></i> Get it on Google Play
+                </a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-info">
+                <h3>2 Player Car Racing</h3>
+                <p>Race with your friends on a single device! Local multiplayer fun with split-screen action and competitive tracks.</p>
+                <a href="https://play.google.com/store/apps/details?id=com.tinybatgames.TwoPlayerRacing" class="btn-play">
+                    <i class="fab fa-google-play"></i> Get it on Google Play
+                </a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-info">
+                <h3>Split Screen Traffic Racer</h3>
+                <p>Challenge your friend in high-speed traffic. Dodge cars, collect points, and prove who is the better driver on one screen.</p>
+                <a href="https://play.google.com/store/apps/developer?id=tinybatgames" class="btn-play">
+                    <i class="fab fa-google-play"></i> Get it on Google Play
+                </a>
+            </div>
+        </div>
+
+        <div class="game-card">
+            <div class="game-info">
+                <h3>Pixel Tower Defense TD</h3>
+                <p>A strategic retro-style tower defense game. Build your defenses, upgrade your towers, and survive waves of enemies in this pixel art adventure.</p>
+                <a href="https://play.google.com/store/apps/details?id=com.tinybatgames.pixeltd" class="btn-play">
+                    <i class="fab fa-google-play"></i> Get it on Google Play
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer>
+    <div class="social-links">
+        <a href="https://play.google.com/store/apps/developer?id=tinybatgames" title="Google Play"><i class="fab fa-google-play"></i></a>
+        <a href="mailto:tinybatgames@gmail.com" title="Contact Us"><i class="fas fa-envelope"></i></a>
+    </div>
+    <p>&copy; 2026 TinyBatGames. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
