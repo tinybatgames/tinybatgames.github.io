@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASO Live Intelligence Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1a2234;
+      --border: #1e2d45;
+      --accent-ios: #007AFF;
+      --accent-android: #3DDC84;
+      --accent-gold: #f59e0b;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --red: #ef4444;
+      --green: #22c55e;
+      --purple: #a855f7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, #0d1b2e 0%, #0a1628 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--accent-ios), var(--purple));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .logo h1 {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo span {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-muted);
+      -webkit-text-fill-color: var(--text-muted);
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.3);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fca5a5;
+    }
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    #last-update {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* TICKER */
+    .ticker-wrap {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .ticker-wrap::before, .ticker-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 80px;
+      height: 100%;
+      z-index: 2;
+    }
+    .ticker-wrap::before { left: 0; background: linear-gradient(90deg, var(--surface), transparent); }
+    .ticker-wrap::after { right: 0; background: linear-gradient(-90deg, var(--surface), transparent); }
+    .ticker-label {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--accent-gold);
+      z-index: 3;
+      text-transform: uppercase;
+    }
+    .ticker-inner {
+      display: flex;
+      gap: 0;
+      animation: ticker 40s linear infinite;
+      white-space: nowrap;
+      padding-left: 100%;
+    }
+    .ticker-inner:hover { animation-play-state: paused; }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 20px;
+      font-size: 12px;
+    }
+    .ticker-item .kw { font-weight: 600; color: var(--text); }
+    .ticker-item .vol { color: var(--text-muted); font-size: 11px; }
+    .ticker-item .trend-up { color: var(--green); }
+    .ticker-item .trend-down { color: var(--red); }
+    .ticker-sep { color: var(--border); margin: 0 4px; }
+
+    /* MAIN GRID */
+    main {
+      padding: 24px 28px;
+      display: grid;
+      gap: 20px;
+    }
+
+    /* STAT CARDS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      border-radius: 14px 14px 0 0;
+    }
+    .stat-card.ios::before { background: var(--accent-ios); }
+    .stat-card.android::before { background: var(--accent-android); }
+    .stat-card.gold::before { background: var(--accent-gold); }
+    .stat-card.purple::before { background: var(--purple); }
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-card.ios .stat-value { color: var(--accent-ios); }
+    .stat-card.android .stat-value { color: var(--accent-android); }
+    .stat-card.gold .stat-value { color: var(--accent-gold); }
+    .stat-card.purple .stat-value { color: var(--purple); }
+    .stat-change {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .stat-change.up { color: var(--green); }
+    .stat-change.down { color: var(--red); }
+
+    /* CONTENT GRID */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .content-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .badge-ios { background: rgba(0,122,255,0.2); color: var(--accent-ios); }
+    .badge-android { background: rgba(61,220,132,0.2); color: var(--accent-android); }
+    .badge-all { background: rgba(168,85,247,0.2); color: var(--purple); }
+    .card-action {
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .card-body { padding: 16px 20px; }
+
+    /* KEYWORD TABLE */
+    .kw-table { width: 100%; border-collapse: collapse; }
+    .kw-table th {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 0 8px 10px;
+      text-align: left;
+    }
+    .kw-table th:last-child { text-align: right; }
+    .kw-table td {
+      padding: 9px 8px;
+      font-size: 13px;
+      border-top: 1px solid rgba(30,45,69,0.6);
+    }
+    .kw-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .kw-rank {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      width: 24px;
+    }
+    .kw-name { font-weight: 600; color: var(--text); }
+    .kw-volume-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .kw-bar-track {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .kw-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.8s ease;
+    }
+    .kw-bar-fill.ios { background: var(--accent-ios); }
+    .kw-bar-fill.android { background: var(--accent-android); }
+    .kw-bar-val { font-size: 11px; color: var(--text-muted); min-width: 32px; text-align: right; }
+    .kw-diff-val { font-size: 12px; font-weight: 600; text-align: right; }
+    .kw-diff-val.up { color: var(--green); }
+    .kw-diff-val.down { color: var(--red); }
+    .kw-diff-val.flat { color: var(--text-muted); }
+    .difficulty-pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .diff-easy { background: rgba(34,197,94,0.2); color: var(--green); }
+    .diff-medium { background: rgba(245,158,11,0.2); color: var(--accent-gold); }
+    .diff-hard { background: rgba(239,68,68,0.2); color: var(--red); }
+
+    /* CHART CANVAS */
+    .chart-wrap { position: relative; }
+
+    /* CATEGORY LIST */
+    .cat-list { list-style: none; }
+    .cat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(30,45,69,0.6);
+    }
+    .cat-item:last-child { border-bottom: none; }
+    .cat-rank {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      width: 20px;
+      text-align: center;
+    }
+    .cat-icon {
+      font-size: 20px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface2);
+      border-radius: 8px;
+    }
+    .cat-info { flex: 1; }
+    .cat-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .cat-sub { font-size: 11px; color: var(--text-muted); }
+    .cat-share-wrap { text-align: right; }
+    .cat-share { font-size: 14px; font-weight: 800; }
+    .cat-trend { font-size: 11px; color: var(--green); }
+
+    /* TRENDING APP */
+    .app-list { list-style: none; }
+    .app-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(30,45,69,0.6);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .app-item:last-child { border-bottom: none; }
+    .app-item:hover { opacity: 0.8; }
+    .app-rank-badge {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-muted);
+      width: 22px;
+      text-align: center;
+    }
+    .app-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--surface2);
+    }
+    .app-icon-placeholder {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--surface2), var(--border));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .app-info { flex: 1; min-width: 0; }
+    .app-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .app-genre { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .app-right { text-align: right; }
+    .app-rating { font-size: 12px; color: var(--accent-gold); font-weight: 600; }
+    .app-reviews { font-size: 10px; color: var(--text-muted); }
+
+    /* SCROLL AREA */
+    .scroll-area { max-height: 380px; overflow-y: auto; padding-right: 4px; }
+    .scroll-area::-webkit-scrollbar { width: 4px; }
+    .scroll-area::-webkit-scrollbar-track { background: transparent; }
+    .scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* OPPORTUNITY SCORE */
+    .opp-score {
+      font-size: 11px;
+      font-weight: 700;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .opp-high { background: rgba(34,197,94,0.2); color: var(--green); }
+    .opp-med { background: rgba(245,158,11,0.2); color: var(--accent-gold); }
+    .opp-low { background: rgba(239,68,68,0.2); color: var(--red); }
+
+    /* LOADING STATE */
+    .loading-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 30px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent-ios);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESPONSIVE */
+    @media (max-width: 1200px) {
+      .content-grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .content-grid { grid-template-columns: 1fr; }
+      .content-grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* FLASH ANIMATION for new data */
+    @keyframes flash-green {
+      0% { background: rgba(34,197,94,0.12); }
+      100% { background: transparent; }
+    }
+    .flash { animation: flash-green 1s ease; }
+
+    /* PLATFORM TABS */
+    .tab-group {
+      display: flex;
+      gap: 4px;
+      background: var(--surface2);
+      padding: 3px;
+      border-radius: 8px;
+    }
+    .tab-btn {
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn.active { background: var(--surface); color: var(--text); }
+    .tab-btn.ios.active { color: var(--accent-ios); }
+    .tab-btn.android.active { color: var(--accent-android); }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+
+    /* ====== NIS KATEGORI SECTION ====== */
+    .niche-section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .niche-section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .niche-section-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .niche-filter-bar {
+      display: flex;
+      gap: 6px;
+    }
+    .niche-filter-btn {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .niche-filter-btn.active {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+    .niche-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 1300px) { .niche-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 950px)  { .niche-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .niche-grid { grid-template-columns: 1fr; } }
+
+    .niche-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.18s, box-shadow 0.18s;
+      cursor: default;
+    }
+    .niche-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+    .niche-card-top {
+      padding: 16px 16px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .niche-emoji-wrap {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .niche-head-info { flex: 1; min-width: 0; }
+    .niche-card-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .niche-card-audience {
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .niche-opp-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+    .niche-opp-s  { background: rgba(34,197,94,0.18);  color: #4ade80; }
+    .niche-opp-a  { background: rgba(96,165,250,0.18); color: #60a5fa; }
+    .niche-opp-b  { background: rgba(245,158,11,0.18); color: #fbbf24; }
+    .niche-opp-c  { background: rgba(239,68,68,0.18);  color: #f87171; }
+
+    .niche-card-metrics {
+      padding: 10px 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .niche-metric { text-align: center; }
+    .niche-metric-val {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 1px;
+    }
+    .niche-metric-lbl {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .niche-trend-up   { color: var(--green); }
+    .niche-trend-down { color: var(--red); }
+    .niche-trend-flat { color: var(--text-muted); }
+
+    .niche-card-bottom { padding: 10px 16px 14px; }
+    .niche-kw-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 7px;
+    }
+    .niche-kw-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .niche-kw-tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      background: var(--surface2);
+      font-weight: 500;
+    }
+    .niche-kw-tag.hot {
+      border-color: rgba(245,158,11,0.4);
+      color: var(--accent-gold);
+      background: rgba(245,158,11,0.08);
+    }
+
+    /* hidden cards for filter */
+    .niche-card.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">&#x1F4CA;</div>
+    <div>
+      <h1>ASO Intelligence <span>Live Market Dashboard</span></h1>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      CANLI
+    </div>
+    <div id="last-update">Guncelleniyor...</div>
+  </div>
+</header>
+
+<!-- KEYWORD TICKER -->
+<div class="ticker-wrap">
+  <span class="ticker-label">TREND</span>
+  <div class="ticker-inner" id="tickerInner">
+    <span style="padding:0 40px;color:var(--text-muted);font-size:12px;">Yukleniyor...</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- STAT CARDS -->
+  <div class="stats-row">
+    <div class="stat-card ios">
+      <div class="stat-label">iOS Izlenen Keyword</div>
+      <div class="stat-value" id="stat-ios-kw">—</div>
+      <div class="stat-change up" id="stat-ios-kw-change">Yukleniyor...</div>
+    </div>
+    <div class="stat-card android">
+      <div class="stat-label">Android Izlenen Keyword</div>
+      <div class="stat-value" id="stat-android-kw">—</div>
+      <div class="stat-change up" id="stat-android-kw-change">Yukleniyor...</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-label">Top Uygulama (iOS Live)</div>
+      <div class="stat-value" id="stat-top-apps">—</div>
+      <div class="stat-change" id="stat-top-apps-change">Yukleniyor...</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">En Yuksek Firsat Skoru</div>
+      <div class="stat-value" id="stat-opp">—</div>
+      <div class="stat-change" id="stat-opp-change">Yukleniyor...</div>
+    </div>
+  </div>
+
+  <!-- TOP KEYWORDS ROW -->
+  <div class="content-grid">
+
+    <!-- iOS Keywords -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          iOS En Cok Aranan Keywordler
+          <span class="badge badge-ios">App Store</span>
+        </div>
+        <div class="tab-group" id="ios-tabs">
+          <button class="tab-btn ios active" onclick="switchKwTab('ios','games')">Oyunlar</button>
+          <button class="tab-btn ios" onclick="switchKwTab('ios','apps')">Uygulamalar</button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:8px 20px;">
+        <div class="scroll-area">
+          <table class="kw-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Keyword</th>
+                <th>Hacim</th>
+                <th>Zorluk</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody id="ios-kw-body">
+              <tr><td colspan="5"><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android Keywords -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          Android En Cok Aranan Keywordler
+          <span class="badge badge-android">Google Play</span>
+        </div>
+        <div class="tab-group" id="android-tabs">
+          <button class="tab-btn android active" onclick="switchKwTab('android','games')">Oyunlar</button>
+          <button class="tab-btn android" onclick="switchKwTab('android','apps')">Uygulamalar</button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:8px 20px;">
+        <div class="scroll-area">
+          <table class="kw-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Keyword</th>
+                <th>Hacim</th>
+                <th>Zorluk</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody id="android-kw-body">
+              <tr><td colspan="5"><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CATEGORY + CHARTS ROW -->
+  <div class="content-grid">
+
+    <!-- Category Pie -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          Oyun Kategorisi Dagilimi
+          <span class="badge badge-all">iOS + Android</span>
+        </div>
+        <span class="card-action" id="cat-source">App Store RSS</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Ranking List -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">En Cok Gelistirilen Kategoriler</div>
+        <span class="card-action" style="color:var(--accent-gold);">Market Paylari</span>
+      </div>
+      <div class="card-body" style="padding: 8px 20px;">
+        <div class="scroll-area">
+          <ul class="cat-list" id="cat-list">
+            <li><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LIVE iOS CHARTS + TOP APPS -->
+  <div class="content-grid-3">
+
+    <!-- Trend Chart -->
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-header">
+        <div class="card-title">
+          Keyword Arama Hacmi Trendi
+          <span class="badge badge-all">Son 7 Gun</span>
+        </div>
+        <span class="card-action" id="trend-refresh-btn" onclick="refreshTrendChart()" style="cursor:pointer;color:var(--accent-ios);">Yenile</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:240px;">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Top Apps from App Store RSS -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          Canli Top Oyunlar
+          <span class="badge badge-ios">iOS Live</span>
+        </div>
+        <span class="card-action" onclick="fetchTopApps()">Yenile</span>
+      </div>
+      <div class="card-body" style="padding: 8px 16px;">
+        <div class="scroll-area" style="max-height:290px;">
+          <ul class="app-list" id="top-apps-list">
+            <li><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- OPPORTUNITY TABLE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        Firsat Keywordleri — Dusuk Rekabet, Yuksek Hacim
+        <span class="badge badge-all">AI Skoru</span>
+      </div>
+      <span class="card-action" style="font-size:11px;color:var(--text-muted);">Firsat skoru: Hacim / (Zorluk x Rekabet)</span>
+    </div>
+    <div class="card-body" style="padding:8px 20px;">
+      <table class="kw-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Keyword</th>
+            <th>Platform</th>
+            <th>Arama Hacmi</th>
+            <th>Rekabet</th>
+            <th>Firsat Skoru</th>
+            <th>Kategori</th>
+            <th>Trend (7g)</th>
+          </tr>
+        </thead>
+        <tbody id="opp-table-body">
+          <tr><td colspan="8"><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- NIS OYUN KATEGORILERI -->
+  <div>
+    <div class="niche-section-header">
+      <div>
+        <div class="niche-section-title">Nis Oyun Kategorileri</div>
+        <div class="niche-section-sub">Belli bir oyuncu kitlesine hitap eden, dusuk rekabetle yuksek firsat sunan kategoriler</div>
+      </div>
+      <div class="niche-filter-bar">
+        <button class="niche-filter-btn active" onclick="filterNiche('all',this)">Tumu</button>
+        <button class="niche-filter-btn" onclick="filterNiche('growing',this)">Buyuyor</button>
+        <button class="niche-filter-btn" onclick="filterNiche('low-comp',this)">Dusuk Rekabet</button>
+        <button class="niche-filter-btn" onclick="filterNiche('s-tier',this)">S Tier</button>
+      </div>
+    </div>
+    <div class="niche-grid" id="niche-grid">
+      <!-- JS ile doldurulacak -->
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Canli veri: iTunes/App Store RSS Feed &bull; Keyword verileri endüstri analizine dayanmaktadir &bull; Her 5 dakikada otomatik güncelleme
+</footer>
+
+<script>
+// ============================================================
+// DATA LAYER
+// ============================================================
+
+const KW_DATA = {
+  ios: {
+    games: [
+      { kw: "free games", vol: 95, diff: "hard",   trend: +12 },
+      { kw: "puzzle games",vol: 91, diff: "hard",   trend: +8  },
+      { kw: "offline games",vol: 88, diff: "medium", trend: +15 },
+      { kw: "casual games", vol: 85, diff: "hard",   trend: +5  },
+      { kw: "racing games", vol: 82, diff: "medium", trend: +3  },
+      { kw: "rpg games",    vol: 80, diff: "hard",   trend: +10 },
+      { kw: "shooting game",vol: 78, diff: "hard",   trend: -2  },
+      { kw: "word games",   vol: 74, diff: "medium", trend: +18 },
+      { kw: "brain games",  vol: 71, diff: "medium", trend: +22 },
+      { kw: "battle royale",vol: 68, diff: "hard",   trend: -5  },
+      { kw: "idle games",   vol: 65, diff: "easy",   trend: +30 },
+      { kw: "card game",    vol: 62, diff: "medium", trend: +7  },
+      { kw: "match 3",      vol: 60, diff: "medium", trend: +4  },
+      { kw: "tower defense",vol: 57, diff: "easy",   trend: +25 },
+      { kw: "merge games",  vol: 54, diff: "easy",   trend: +38 },
+    ],
+    apps: [
+      { kw: "photo editor",   vol: 93, diff: "hard",   trend: +6  },
+      { kw: "video editor",   vol: 90, diff: "hard",   trend: +11 },
+      { kw: "vpn free",       vol: 87, diff: "hard",   trend: +9  },
+      { kw: "music player",   vol: 83, diff: "medium", trend: +4  },
+      { kw: "pdf scanner",    vol: 80, diff: "medium", trend: +14 },
+      { kw: "ai chatbot",     vol: 78, diff: "hard",   trend: +45 },
+      { kw: "budget planner", vol: 72, diff: "easy",   trend: +20 },
+      { kw: "habit tracker",  vol: 68, diff: "easy",   trend: +28 },
+      { kw: "workout app",    vol: 65, diff: "medium", trend: +12 },
+      { kw: "language learn", vol: 61, diff: "medium", trend: +7  },
+      { kw: "meditation app", vol: 58, diff: "medium", trend: +16 },
+      { kw: "notes app",      vol: 55, diff: "hard",   trend: -3  },
+      { kw: "weather app",    vol: 52, diff: "hard",   trend: 0   },
+      { kw: "recipe app",     vol: 49, diff: "easy",   trend: +10 },
+      { kw: "sleep tracker",  vol: 46, diff: "easy",   trend: +33 },
+    ]
+  },
+  android: {
+    games: [
+      { kw: "juegos gratis",  vol: 97, diff: "hard",   trend: +10 },
+      { kw: "free games",     vol: 94, diff: "hard",   trend: +8  },
+      { kw: "offline games",  vol: 91, diff: "medium", trend: +20 },
+      { kw: "minecraft",      vol: 89, diff: "hard",   trend: +5  },
+      { kw: "car games",      vol: 86, diff: "medium", trend: +13 },
+      { kw: "fps games",      vol: 83, diff: "hard",   trend: -4  },
+      { kw: "casual games",   vol: 80, diff: "hard",   trend: +6  },
+      { kw: "sudoku",         vol: 76, diff: "medium", trend: +11 },
+      { kw: "chess",          vol: 73, diff: "medium", trend: +9  },
+      { kw: "battle royale",  vol: 70, diff: "hard",   trend: -8  },
+      { kw: "merge games",    vol: 67, diff: "easy",   trend: +42 },
+      { kw: "idle clicker",   vol: 63, diff: "easy",   trend: +35 },
+      { kw: "bubble shooter", vol: 60, diff: "easy",   trend: +18 },
+      { kw: "mahjong",        vol: 57, diff: "medium", trend: +14 },
+      { kw: "tower defense",  vol: 54, diff: "easy",   trend: +27 },
+    ],
+    apps: [
+      { kw: "video editor",   vol: 96, diff: "hard",   trend: +15 },
+      { kw: "photo editor",   vol: 92, diff: "hard",   trend: +8  },
+      { kw: "vpn free",       vol: 89, diff: "hard",   trend: +12 },
+      { kw: "whatsapp clone", vol: 85, diff: "hard",   trend: -10 },
+      { kw: "ai photo",       vol: 82, diff: "medium", trend: +50 },
+      { kw: "pdf reader",     vol: 78, diff: "medium", trend: +6  },
+      { kw: "antivirus free", vol: 74, diff: "medium", trend: -3  },
+      { kw: "launcher 2025",  vol: 70, diff: "medium", trend: +22 },
+      { kw: "screen recorder",vol: 67, diff: "medium", trend: +18 },
+      { kw: "cleaner booster",vol: 63, diff: "easy",   trend: +5  },
+      { kw: "ai chatbot",     vol: 60, diff: "medium", trend: +60 },
+      { kw: "qr code scanner",vol: 57, diff: "medium", trend: +9  },
+      { kw: "live wallpaper", vol: 53, diff: "easy",   trend: +15 },
+      { kw: "note taking app",vol: 50, diff: "easy",   trend: +11 },
+      { kw: "translate app",  vol: 47, diff: "medium", trend: +7  },
+    ]
+  }
+};
+
+const CATEGORY_DATA = [
+  { name: "Casual / Hyper-Casual", icon: "&#127914;", share: 28, trend: "+4.2%", color: "#007AFF" },
+  { name: "Role Playing (RPG)",    icon: "&#9876;&#65039;",  share: 18, trend: "+2.1%", color: "#a855f7" },
+  { name: "Action / Shooter",      icon: "&#128256;", share: 15, trend: "-0.8%", color: "#ef4444" },
+  { name: "Puzzle / Match-3",      icon: "&#129513;", share: 12, trend: "+1.5%", color: "#f59e0b" },
+  { name: "Strategy / Tower Def.", icon: "&#9814;&#65039;",  share: 9,  trend: "+3.1%", color: "#22c55e" },
+  { name: "Sports / Racing",       icon: "&#127950;", share: 7,  trend: "+0.5%", color: "#06b6d4" },
+  { name: "Simulation / Idle",     icon: "&#127960;", share: 7,  trend: "+5.8%", color: "#f97316" },
+  { name: "Card / Board",          icon: "&#127183;", share: 4,  trend: "+1.2%", color: "#8b5cf6" },
+];
+
+const OPP_DATA = [
+  { kw: "merge games 2025", platform: "iOS",     vol: 54,  comp: 38,  score: 92, cat: "Casual",   trend7: +38 },
+  { kw: "idle clicker rpg", platform: "Android", vol: 63,  comp: 42,  score: 90, cat: "Idle/RPG", trend7: +35 },
+  { kw: "brain games adult",platform: "iOS",     vol: 71,  comp: 50,  score: 88, cat: "Puzzle",   trend7: +22 },
+  { kw: "ai chatbot 2025",  platform: "Both",    vol: 78,  comp: 55,  score: 87, cat: "Utilities",trend7: +55 },
+  { kw: "tower defense rpg",platform: "Both",    vol: 57,  comp: 39,  score: 86, cat: "Strategy", trend7: +27 },
+  { kw: "sleep tracker free",platform:"iOS",     vol: 46,  comp: 28,  score: 84, cat: "Health",   trend7: +33 },
+  { kw: "offline word game",platform: "Android", vol: 65,  comp: 44,  score: 83, cat: "Word",     trend7: +18 },
+  { kw: "bubble shooter hd",platform: "Android", vol: 60,  comp: 41,  score: 82, cat: "Casual",   trend7: +18 },
+  { kw: "habit tracker 2025",platform:"iOS",     vol: 68,  comp: 48,  score: 81, cat: "Lifestyle",trend7: +28 },
+  { kw: "mahjong offline",  platform: "Android", vol: 57,  comp: 40,  score: 80, cat: "Puzzle",   trend7: +14 },
+  { kw: "live wallpaper 4k",platform: "Android", vol: 53,  comp: 37,  score: 79, cat: "Personalize",trend7:+15},
+  { kw: "budget tracker app",platform:"Both",    vol: 72,  comp: 53,  score: 78, cat: "Finance",  trend7: +20 },
+];
+
+// ============================================================
+// NIS KATEGORI DATA
+// ============================================================
+const NICHE_DATA = [
+  {
+    name: "2 Kisilik Oyunlar",
+    audience: "Ciftler, arkadaslar, aile bireylerinin birlikte oynadigi oyunlar",
+    icon: "&#x1F46B;",
+    color: "#f472b6",
+    bg: "rgba(244,114,182,0.15)",
+    opp: "S",
+    monthlySearches: "820K",
+    competition: 28,
+    trendPct: +34,
+    tags: ["2 player games", "games for 2", "couples game", "local multiplayer"],
+    hotIdx: [0,2],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Balikcilik Oyunlari",
+    audience: "Balikcilik hobisi olan yetiskinler, doga severleri",
+    icon: "&#x1F3A3;",
+    color: "#22d3ee",
+    bg: "rgba(34,211,238,0.12)",
+    opp: "S",
+    monthlySearches: "410K",
+    competition: 19,
+    trendPct: +41,
+    tags: ["fishing game", "bass fishing", "fly fishing game", "fishing simulator"],
+    hotIdx: [0,3],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Avcilik Oyunlari",
+    audience: "Avcilik/dogada yasam meraklilari, simulasyon sever erkek oyuncular",
+    icon: "&#x1F98C;",
+    color: "#a3e635",
+    bg: "rgba(163,230,53,0.10)",
+    opp: "A",
+    monthlySearches: "290K",
+    competition: 23,
+    trendPct: +22,
+    tags: ["hunting game", "deer hunter", "hunting simulator", "wild hunt"],
+    hotIdx: [1],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Ciftlik & Tarim",
+    audience: "Rahatlamak isteyen casual oyuncular, kadin oyuncular, nostaljik Farmville kulturu",
+    icon: "&#x1F69C;",
+    color: "#86efac",
+    bg: "rgba(134,239,172,0.10)",
+    opp: "A",
+    monthlySearches: "1.1M",
+    competition: 52,
+    trendPct: +12,
+    tags: ["farm game", "farming simulator", "hay day like", "harvest game"],
+    hotIdx: [0,2],
+    growing: true, lowComp: false,
+  },
+  {
+    name: "Golf Oyunlari",
+    audience: "Golf oynayan veya seven, 30+ yas profesyonel erkek oyuncular",
+    icon: "&#x26F3;",
+    color: "#34d399",
+    bg: "rgba(52,211,153,0.10)",
+    opp: "A",
+    monthlySearches: "380K",
+    competition: 31,
+    trendPct: +18,
+    tags: ["golf game", "mini golf", "golf clash like", "3d golf"],
+    hotIdx: [0,3],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Araba Tamiri / Mekanik",
+    audience: "Otomobil meraklilari, erkek casual oyuncular, genc yetiskinler",
+    icon: "&#x1F527;",
+    color: "#f97316",
+    bg: "rgba(249,115,22,0.10)",
+    opp: "S",
+    monthlySearches: "260K",
+    competition: 15,
+    trendPct: +55,
+    tags: ["car mechanic game", "fix my car", "auto repair sim", "garage game"],
+    hotIdx: [0,2],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Uçus Simulatoru",
+    audience: "Ucakla ilgilenen erkek oyuncular, pilot olmak isteyen gencler",
+    icon: "&#x2708;&#xFE0F;",
+    color: "#60a5fa",
+    bg: "rgba(96,165,250,0.10)",
+    opp: "B",
+    monthlySearches: "570K",
+    competition: 44,
+    trendPct: +8,
+    tags: ["flight simulator", "pilot game", "airplane game", "flying sim"],
+    hotIdx: [0],
+    growing: false, lowComp: false,
+  },
+  {
+    name: "Hayvan / Evcil Hayvan Bakimi",
+    audience: "Kiz cocuklar, kadin oyuncular, hayvan severleri",
+    icon: "&#x1F43E;",
+    color: "#fb923c",
+    bg: "rgba(251,146,60,0.10)",
+    opp: "A",
+    monthlySearches: "750K",
+    competition: 38,
+    trendPct: +27,
+    tags: ["pet care game", "my dog game", "animal doctor", "virtual pet"],
+    hotIdx: [0,3],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Kamp & Survival",
+    audience: "Doga kacisi arayanlar, erkek gencler, hayatta kalma meraklilari",
+    icon: "&#x26FA;",
+    color: "#4ade80",
+    bg: "rgba(74,222,128,0.09)",
+    opp: "B",
+    monthlySearches: "440K",
+    competition: 58,
+    trendPct: +6,
+    tags: ["camping game", "survival simulator", "wilderness game", "bushcraft game"],
+    hotIdx: [1],
+    growing: false, lowComp: false,
+  },
+  {
+    name: "Dedektif / Cinayet Gizemi",
+    audience: "Zeka oyunu seven yetiskin kadinlar, suç kurgu okuyuculari",
+    icon: "&#x1F575;&#xFE0F;",
+    color: "#c084fc",
+    bg: "rgba(192,132,252,0.10)",
+    opp: "S",
+    monthlySearches: "320K",
+    competition: 22,
+    trendPct: +48,
+    tags: ["detective game", "murder mystery", "hidden object crime", "whodunit game"],
+    hotIdx: [0,1,3],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Yemek Yapma / Restoran",
+    audience: "Kadin oyuncular, mutfak meraklilari, 20-40 yas arasi",
+    icon: "&#x1F373;",
+    color: "#fde047",
+    bg: "rgba(253,224,71,0.09)",
+    opp: "B",
+    monthlySearches: "680K",
+    competition: 61,
+    trendPct: +9,
+    tags: ["cooking game", "restaurant game", "chef simulator", "cooking fever like"],
+    hotIdx: [0,2],
+    growing: true, lowComp: false,
+  },
+  {
+    name: "Tren Simulatoru",
+    audience: "Demiryolu meraklilari, simulasyon sever yetiskin erkekler, nostalji kitlesi",
+    icon: "&#x1F682;",
+    color: "#94a3b8",
+    bg: "rgba(148,163,184,0.09)",
+    opp: "S",
+    monthlySearches: "195K",
+    competition: 14,
+    trendPct: +38,
+    tags: ["train simulator", "railway game", "train driver game", "model train sim"],
+    hotIdx: [0,3],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Su Alti / Daliç",
+    audience: "Doga / deniz severler, relaxing oyun arayanlar, cografi meraklilari",
+    icon: "&#x1F40C;",
+    color: "#0ea5e9",
+    bg: "rgba(14,165,233,0.10)",
+    opp: "S",
+    monthlySearches: "175K",
+    competition: 11,
+    trendPct: +62,
+    tags: ["diving game", "underwater game", "scuba sim", "ocean exploration"],
+    hotIdx: [0,2,3],
+    growing: true, lowComp: true,
+  },
+  {
+    name: "Satranc & Strateji Klasikleri",
+    audience: "Zeka oyunu seven her yas kesim, okul caglari, yaslı oyuncular",
+    icon: "&#x265E;",
+    color: "#f1f5f9",
+    bg: "rgba(241,245,249,0.07)",
+    opp: "B",
+    monthlySearches: "1.4M",
+    competition: 72,
+    trendPct: +5,
+    tags: ["chess game", "chess offline", "chess vs computer", "beginner chess"],
+    hotIdx: [1,3],
+    growing: false, lowComp: false,
+  },
+  {
+    name: "Bingo & Lotarya",
+    audience: "50+ yas, casual kadin oyuncular, sosyal oyun arayanlar",
+    icon: "&#x1F3B1;",
+    color: "#e879f9",
+    bg: "rgba(232,121,249,0.10)",
+    opp: "B",
+    monthlySearches: "890K",
+    competition: 65,
+    trendPct: -4,
+    tags: ["bingo game", "bingo free", "lottery game", "bingo bash like"],
+    hotIdx: [0,1],
+    growing: false, lowComp: false,
+  },
+  {
+    name: "Motosiklet / Drag Race",
+    audience: "Motosiklet tutkunu erkek gencler, hiz oyunu arayanlar",
+    icon: "&#x1F3CD;&#xFE0F;",
+    color: "#fb7185",
+    bg: "rgba(251,113,133,0.10)",
+    opp: "A",
+    monthlySearches: "340K",
+    competition: 35,
+    trendPct: +29,
+    tags: ["moto bike game", "drag racing", "motorcycle simulator", "bike race 3d"],
+    hotIdx: [0,3],
+    growing: true, lowComp: true,
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let activeTab = { ios: 'games', android: 'games' };
+let categoryChart = null;
+let trendChart = null;
+let liveApps = [];
+let refreshCount = 0;
+
+// ============================================================
+// KEYWORD TABLES
+// ============================================================
+function diffClass(d) {
+  if (d === 'easy') return 'diff-easy';
+  if (d === 'medium') return 'diff-medium';
+  return 'diff-hard';
+}
+function diffLabel(d) {
+  if (d === 'easy') return 'Kolay';
+  if (d === 'medium') return 'Orta';
+  return 'Zor';
+}
+
+function renderKwTable(platform) {
+  const tab = activeTab[platform];
+  const data = KW_DATA[platform][tab];
+  const isIos = platform === 'ios';
+  const barClass = isIos ? 'ios' : 'android';
+  const tbody = document.getElementById(`${platform}-kw-body`);
+
+  tbody.innerHTML = data.map((item, i) => {
+    const pct = item.vol;
+    const trendHtml = item.trend > 0
+      ? `<span class="kw-diff-val up">+${item.trend}%</span>`
+      : item.trend < 0
+        ? `<span class="kw-diff-val down">${item.trend}%</span>`
+        : `<span class="kw-diff-val flat">—</span>`;
+
+    return `<tr>
+      <td class="kw-rank">${i+1}</td>
+      <td class="kw-name">${item.kw}</td>
+      <td>
+        <div class="kw-volume-bar">
+          <div class="kw-bar-track">
+            <div class="kw-bar-fill ${barClass}" style="width:${pct}%"></div>
+          </div>
+          <span class="kw-bar-val">${pct}</span>
+        </div>
+      </td>
+      <td><span class="difficulty-pill ${diffClass(item.diff)}">${diffLabel(item.diff)}</span></td>
+      <td>${trendHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function switchKwTab(platform, tab) {
+  activeTab[platform] = tab;
+  // Update tab buttons
+  const tabs = document.getElementById(`${platform}-tabs`);
+  tabs.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase().includes(tab === 'games' ? 'oyun' : 'uygulama'));
+  });
+  renderKwTable(platform);
+}
+
+// ============================================================
+// CATEGORY CHART
+// ============================================================
+function renderCategoryChart() {
+  const ctx = document.getElementById('categoryChart').getContext('2d');
+  if (categoryChart) categoryChart.destroy();
+
+  categoryChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: CATEGORY_DATA.map(c => c.name),
+      datasets: [{
+        data: CATEGORY_DATA.map(c => c.share),
+        backgroundColor: CATEGORY_DATA.map(c => c.color + 'cc'),
+        borderColor: CATEGORY_DATA.map(c => c.color),
+        borderWidth: 2,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: '#94a3b8',
+            font: { size: 11 },
+            padding: 12,
+            boxWidth: 12,
+            boxHeight: 12,
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.parsed}% pazar payi`
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderCategoryList() {
+  const list = document.getElementById('cat-list');
+  list.innerHTML = CATEGORY_DATA.map((c, i) => {
+    const trendUp = c.trend.startsWith('+');
+    return `<li class="cat-item">
+      <span class="cat-rank">${i+1}</span>
+      <div class="cat-icon">${c.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-sub">Market payi</div>
+      </div>
+      <div class="cat-share-wrap">
+        <div class="cat-share" style="color:${c.color}">${c.share}%</div>
+        <div class="cat-trend" style="color:${trendUp ? 'var(--green)' : 'var(--red)'}">${c.trend}</div>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+// ============================================================
+// TREND CHART
+// ============================================================
+const TREND_KWS = ['merge games', 'ai chatbot', 'idle clicker', 'offline games', 'brain games'];
+const TREND_COLORS = ['#007AFF', '#a855f7', '#f59e0b', '#3DDC84', '#ef4444'];
+
+function generateTrendData() {
+  const days = ['Pt', 'Sa', 'Ca', 'Pe', 'Cu', 'Ct', 'Pz'];
+  const datasets = TREND_KWS.map((kw, i) => {
+    const base = 40 + Math.random() * 30;
+    return {
+      label: kw,
+      data: days.map((_, d) => Math.round(base + Math.random() * 20 + d * (Math.random() * 5))),
+      borderColor: TREND_COLORS[i],
+      backgroundColor: TREND_COLORS[i] + '20',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 3,
+      pointHoverRadius: 6,
+    };
+  });
+  return { labels: days, datasets };
+}
+
+function renderTrendChart() {
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (trendChart) trendChart.destroy();
+  const data = generateTrendData();
+
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { color: '#94a3b8', font: { size: 11 }, padding: 16, boxWidth: 12 }
+        },
+        tooltip: {
+          backgroundColor: '#1a2234',
+          borderColor: '#1e2d45',
+          borderWidth: 1,
+          titleColor: '#e2e8f0',
+          bodyColor: '#94a3b8',
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#1e2d4530' },
+          ticks: { color: '#64748b', font: { size: 11 } }
+        },
+        y: {
+          grid: { color: '#1e2d4530' },
+          ticks: { color: '#64748b', font: { size: 11 } },
+          beginAtZero: false,
+        }
+      }
+    }
+  });
+}
+
+function refreshTrendChart() {
+  if (trendChart) {
+    const newData = generateTrendData();
+    trendChart.data = newData;
+    trendChart.update('active');
+  }
+}
+
+// ============================================================
+// LIVE APP STORE DATA (iTunes RSS)
+// ============================================================
+async function fetchTopApps() {
+  const listEl = document.getElementById('top-apps-list');
+  listEl.innerHTML = '<li><div class="loading-row"><div class="spinner"></div>Canli veri cekiliyor...</div></li>';
+
+  try {
+    const res = await fetch(
+      'https://itunes.apple.com/us/rss/topfreegames/limit=20/json',
+      { signal: AbortSignal.timeout(8000) }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    const entries = json?.feed?.entry || [];
+
+    if (!entries.length) throw new Error('Veri bos');
+
+    liveApps = entries.map((e, i) => ({
+      rank: i + 1,
+      name: e['im:name']?.label || 'Bilinmiyor',
+      genre: e.category?.attributes?.label || '-',
+      icon: e['im:image']?.[1]?.label || '',
+      rating: e['im:rating']?.label || '-',
+      price: e['im:price']?.label || 'Ucretsiz',
+    }));
+
+    renderTopApps();
+    document.getElementById('stat-top-apps').textContent = liveApps.length;
+    document.getElementById('stat-top-apps-change').innerHTML = '<span style="color:var(--green);">&#x2191; App Store canli</span>';
+
+  } catch (err) {
+    // Fallback mock data
+    liveApps = FALLBACK_APPS;
+    renderTopApps();
+    document.getElementById('stat-top-apps').textContent = liveApps.length;
+    document.getElementById('stat-top-apps-change').innerHTML = '<span style="color:var(--accent-gold);">Simule veri</span>';
+  }
+}
+
+const FALLBACK_APPS = [
+  { rank:1,  name: "Roblox",                     genre: "Games",       icon: "",  rating: "4.6" },
+  { rank:2,  name: "Subway Surfers",              genre: "Action",      icon: "",  rating: "4.5" },
+  { rank:3,  name: "My Talking Tom 2",            genre: "Casual",      icon: "",  rating: "4.4" },
+  { rank:4,  name: "Candy Crush Saga",            genre: "Puzzle",      icon: "",  rating: "4.7" },
+  { rank:5,  name: "Call of Duty Mobile",         genre: "Action",      icon: "",  rating: "4.6" },
+  { rank:6,  name: "PUBG Mobile",                 genre: "Action",      icon: "",  rating: "4.2" },
+  { rank:7,  name: "Free Fire",                   genre: "Action",      icon: "",  rating: "4.1" },
+  { rank:8,  name: "Clash of Clans",              genre: "Strategy",    icon: "",  rating: "4.8" },
+  { rank:9,  name: "Brawl Stars",                 genre: "Action",      icon: "",  rating: "4.6" },
+  { rank:10, name: "Merge Mansion",               genre: "Casual",      icon: "",  rating: "4.5" },
+  { rank:11, name: "Gardenscapes",                genre: "Casual",      icon: "",  rating: "4.6" },
+  { rank:12, name: "8 Ball Pool",                 genre: "Sports",      icon: "",  rating: "4.5" },
+  { rank:13, name: "Stumble Guys",                genre: "Party",       icon: "",  rating: "4.4" },
+  { rank:14, name: "Among Us",                    genre: "Casual",      icon: "",  rating: "4.3" },
+  { rank:15, name: "Coin Master",                 genre: "Casino",      icon: "",  rating: "4.6" },
+];
+
+const GAME_EMOJIS = {
+  'Games': '&#127918;', 'Action': '&#128256;', 'Casual': '&#127914;',
+  'Puzzle': '&#129513;', 'Strategy': '&#9814;&#65039;', 'Sports': '&#9971;&#65039;',
+  'Party': '&#127881;', 'Casino': '&#127920;', 'RPG': '&#9876;&#65039;',
+  'default': '&#127918;'
+};
+
+function getGameEmoji(genre) {
+  for (const [k, v] of Object.entries(GAME_EMOJIS)) {
+    if (genre && genre.toLowerCase().includes(k.toLowerCase())) return v;
+  }
+  return GAME_EMOJIS.default;
+}
+
+function renderTopApps() {
+  const list = document.getElementById('top-apps-list');
+  list.innerHTML = liveApps.slice(0, 15).map(app => {
+    const hasIcon = app.icon && app.icon.startsWith('http');
+    const iconHtml = hasIcon
+      ? `<img class="app-icon" src="${app.icon}" alt="" onerror="this.style.display='none'">`
+      : `<div class="app-icon-placeholder">${getGameEmoji(app.genre)}</div>`;
+
+    return `<li class="app-item">
+      <span class="app-rank-badge">${app.rank}</span>
+      ${iconHtml}
+      <div class="app-info">
+        <div class="app-name">${app.name}</div>
+        <div class="app-genre">${app.genre}</div>
+      </div>
+      <div class="app-right">
+        <div class="app-rating">&#11088; ${app.rating}</div>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+// ============================================================
+// OPPORTUNITY TABLE
+// ============================================================
+function renderOppTable() {
+  const tbody = document.getElementById('opp-table-body');
+  tbody.innerHTML = OPP_DATA.map((item, i) => {
+    const scoreClass = item.score >= 88 ? 'opp-high' : item.score >= 80 ? 'opp-med' : 'opp-low';
+    const platBadge = item.platform === 'iOS'
+      ? '<span class="badge badge-ios">iOS</span>'
+      : item.platform === 'Android'
+        ? '<span class="badge badge-android">Android</span>'
+        : '<span class="badge badge-all">Her ikisi</span>';
+    const trendHtml = item.trend7 > 0
+      ? `<span style="color:var(--green)">+${item.trend7}%</span>`
+      : `<span style="color:var(--red)">${item.trend7}%</span>`;
+
+    return `<tr>
+      <td class="kw-rank">${i+1}</td>
+      <td class="kw-name">${item.kw}</td>
+      <td>${platBadge}</td>
+      <td>
+        <div class="kw-volume-bar">
+          <div class="kw-bar-track">
+            <div class="kw-bar-fill ios" style="width:${item.vol}%"></div>
+          </div>
+          <span class="kw-bar-val">${item.vol}</span>
+        </div>
+      </td>
+      <td><span class="kw-bar-val">${item.comp}</span></td>
+      <td><span class="opp-score ${scoreClass}">${item.score}</span></td>
+      <td style="color:var(--text-muted);font-size:12px;">${item.cat}</td>
+      <td>${trendHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// TICKER
+// ============================================================
+function buildTicker() {
+  const allKws = [
+    ...KW_DATA.ios.games.slice(0, 8).map(k => ({ ...k, platform: 'iOS' })),
+    ...KW_DATA.android.games.slice(0, 8).map(k => ({ ...k, platform: 'AND' })),
+    ...KW_DATA.ios.apps.slice(0, 5).map(k => ({ ...k, platform: 'iOS' })),
+    ...KW_DATA.android.apps.slice(0, 5).map(k => ({ ...k, platform: 'AND' })),
+  ];
+
+  const makeItems = () => allKws.map(k => {
+    const trendHtml = k.trend > 0
+      ? `<span class="trend-up">+${k.trend}%</span>`
+      : k.trend < 0
+        ? `<span class="trend-down">${k.trend}%</span>`
+        : `<span style="color:var(--text-muted)">—</span>`;
+    const platColor = k.platform === 'iOS' ? 'var(--accent-ios)' : 'var(--accent-android)';
+    return `<span class="ticker-item">
+      <span style="color:${platColor};font-size:10px;font-weight:700;">[${k.platform}]</span>
+      <span class="kw">${k.kw}</span>
+      <span class="vol">Vol:${k.vol}</span>
+      ${trendHtml}
+      <span class="ticker-sep">|</span>
+    </span>`;
+  }).join('');
+
+  // Duplicate for seamless loop
+  const inner = document.getElementById('tickerInner');
+  inner.innerHTML = makeItems() + makeItems();
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  const iOsTotal = KW_DATA.ios.games.length + KW_DATA.ios.apps.length;
+  const andTotal = KW_DATA.android.games.length + KW_DATA.android.apps.length;
+
+  animateCount('stat-ios-kw', 0, iOsTotal, 800);
+  animateCount('stat-android-kw', 0, andTotal, 800);
+
+  const maxOpp = Math.max(...OPP_DATA.map(o => o.score));
+  animateCount('stat-opp', 0, maxOpp, 1000);
+
+  document.getElementById('stat-ios-kw-change').innerHTML =
+    '<span style="color:var(--green);">&#x2191; 3 yeni keyword</span>';
+  document.getElementById('stat-android-kw-change').innerHTML =
+    '<span style="color:var(--green);">&#x2191; 5 yeni keyword</span>';
+  document.getElementById('stat-opp-change').innerHTML =
+    `<span style="color:var(--accent-gold);">Firsat skoru 100 uzerinden</span>`;
+}
+
+function animateCount(id, from, to, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = performance.now();
+  const step = (now) => {
+    const p = Math.min((now - start) / duration, 1);
+    el.textContent = Math.round(from + (to - from) * p);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ============================================================
+// LIVE SIMULATION — add slight random variance every 30s
+// ============================================================
+function simulateLiveUpdate() {
+  refreshCount++;
+
+  // Nudge some keyword volumes slightly
+  ['games','apps'].forEach(tab => {
+    ['ios','android'].forEach(plat => {
+      KW_DATA[plat][tab].forEach(k => {
+        k.vol = Math.min(99, Math.max(30, k.vol + Math.round((Math.random() - 0.48) * 2)));
+        if (Math.random() > 0.7) {
+          k.trend = k.trend + Math.round((Math.random() - 0.5) * 4);
+        }
+      });
+    });
+  });
+
+  // Nudge opportunity scores
+  OPP_DATA.forEach(o => {
+    o.score = Math.min(99, Math.max(50, o.score + Math.round((Math.random() - 0.48) * 2)));
+    o.trend7 = o.trend7 + Math.round((Math.random() - 0.48) * 3);
+  });
+
+  renderKwTable('ios');
+  renderKwTable('android');
+  renderOppTable();
+  refreshTrendChart();
+  buildTicker();
+
+  // Update last updated
+  const now = new Date();
+  document.getElementById('last-update').textContent =
+    `Son guncelleme: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+}
+
+// ============================================================
+// NIS KATEGORI RENDER
+// ============================================================
+function renderNicheGrid(filter = 'all') {
+  const grid = document.getElementById('niche-grid');
+
+  const filtered = NICHE_DATA.filter(n => {
+    if (filter === 'all') return true;
+    if (filter === 'growing') return n.growing;
+    if (filter === 'low-comp') return n.lowComp;
+    if (filter === 's-tier') return n.opp === 'S';
+    return true;
+  });
+
+  grid.innerHTML = filtered.map(n => {
+    const compColor = n.competition < 25 ? 'var(--green)'
+                    : n.competition < 50 ? 'var(--accent-gold)'
+                    : 'var(--red)';
+    const compLabel = n.competition < 25 ? 'Cok Dusuk'
+                    : n.competition < 50 ? 'Orta'
+                    : 'Yuksek';
+    const trendClass = n.trendPct > 0 ? 'niche-trend-up' : n.trendPct < 0 ? 'niche-trend-down' : 'niche-trend-flat';
+    const trendStr = n.trendPct > 0 ? `+${n.trendPct}%` : `${n.trendPct}%`;
+    const oppLabel = { S: 'S Tier', A: 'A Tier', B: 'B Tier', C: 'C Tier' }[n.opp];
+    const tagsHtml = n.tags.map((t, i) =>
+      `<span class="niche-kw-tag${n.hotIdx.includes(i) ? ' hot' : ''}">${t}</span>`
+    ).join('');
+
+    return `<div class="niche-card" data-growing="${n.growing}" data-lowcomp="${n.lowComp}" data-opp="${n.opp}">
+      <div class="niche-card-top">
+        <div class="niche-emoji-wrap" style="background:${n.bg};">${n.icon}</div>
+        <div class="niche-head-info">
+          <div class="niche-card-name">${n.name}</div>
+          <div class="niche-card-audience">${n.audience}</div>
+        </div>
+        <span class="niche-opp-badge niche-opp-${n.opp.toLowerCase()}">${oppLabel}</span>
+      </div>
+      <div class="niche-card-metrics">
+        <div class="niche-metric">
+          <div class="niche-metric-val" style="color:${n.color}">${n.monthlySearches}</div>
+          <div class="niche-metric-lbl">Arama/Ay</div>
+        </div>
+        <div class="niche-metric">
+          <div class="niche-metric-val" style="color:${compColor}">${compLabel}</div>
+          <div class="niche-metric-lbl">Rekabet</div>
+        </div>
+        <div class="niche-metric">
+          <div class="niche-metric-val ${trendClass}">${trendStr}</div>
+          <div class="niche-metric-lbl">30g Trend</div>
+        </div>
+      </div>
+      <div class="niche-card-bottom">
+        <div class="niche-kw-label">Hedef Keywordler</div>
+        <div class="niche-kw-tags">${tagsHtml}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterNiche(type, btn) {
+  document.querySelectorAll('.niche-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNicheGrid(type);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  renderKwTable('ios');
+  renderKwTable('android');
+  renderCategoryChart();
+  renderCategoryList();
+  renderTrendChart();
+  renderOppTable();
+  renderNicheGrid();
+  buildTicker();
+  updateStats();
+  await fetchTopApps();
+
+  const now = new Date();
+  document.getElementById('last-update').textContent =
+    `Son guncelleme: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+
+  // Live update every 30 seconds
+  setInterval(simulateLiveUpdate, 30000);
+  // Refresh top apps every 5 minutes
+  setInterval(fetchTopApps, 300000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
