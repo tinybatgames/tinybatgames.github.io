@@ -15,18 +15,19 @@ class FarmScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor("#2a1e14");
 
-    const grid = window.GRID_SIZE;
+    const cols = window.GRID_COLS;
+    const rows = window.GRID_ROWS;
     const size = window.TILE_PX;
-    const w = grid * size;
-    const h = grid * size;
+    const w = cols * size;
+    const h = rows * size;
     const ox = (this.scale.width - w) / 2;
-    const oy = 120;
+    const oy = 140;
     this.gridOrigin = { x: ox, y: oy, size };
 
     this.add.rectangle(ox + w / 2, oy + h / 2, w + 4, h + 4, 0x1a1109).setStrokeStyle(2, 0x8b5a2b);
 
-    for (let r = 0; r < grid; r++) {
-      for (let c = 0; c < grid; c++) {
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
         const x = ox + c * size + size / 2;
         const y = oy + r * size + size / 2;
         const tId = `${r}_${c}`;
