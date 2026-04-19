@@ -14,23 +14,13 @@
   function tileId(row, col) { return `${row}_${col}`; }
 
   async function initializeNewPlayer(uid, username) {
-    const batch = db().batch();
-    batch.set(userRef(uid), {
+    // Tile docs lazy: plantSeed sırasında oluşturulur, boş tile = doc yok.
+    await userRef(uid).set({
       username,
       coins: window.STARTING_COINS,
       inventory: { seeds: {}, crops: {} },
       createdAt: now()
     });
-    for (let r = 0; r < window.GRID_SIZE; r++) {
-      for (let c = 0; c < window.GRID_SIZE; c++) {
-        batch.set(tileRef(uid, tileId(r, c)), {
-          crop: null,
-          plantedAt: null,
-          readyAt: null
-        });
-      }
-    }
-    await batch.commit();
   }
 
   function listenToUser(uid, cb) {
@@ -82,8 +72,7 @@
       const tileSnap = await tx.get(tileRef(uid, tId));
       const user = userSnap.data();
       const tile = tileSnap.data();
-      if (!tile) throw new Error("Tile yok.");
-      if (tile.crop) throw new Error("Tile dolu.");
+      if (tile && tile.crop) throw new Error("Tile dolu.");
       const seeds = { ...(user.inventory?.seeds || {}) };
       if (!seeds[cropKey] || seeds[cropKey] < 1) throw new Error("Tohum yok.");
       seeds[cropKey] -= 1;
@@ -91,7 +80,7 @@
       const plantedAtMs = Date.now();
       const readyAtMs = plantedAtMs + crop.growSec * 1000;
       tx.update(userRef(uid), { "inventory.seeds": seeds });
-      tx.update(tileRef(uid, tId), {
+      tx.set(tileRef(uid, tId), {
         crop: cropKey,
         plantedAt: firebase.firestore.Timestamp.fromMillis(plantedAtMs),
         readyAt: firebase.firestore.Timestamp.fromMillis(readyAtMs)
@@ -113,7 +102,7 @@
       const crops = { ...(user.inventory?.crops || {}) };
       crops[cropKey] = (crops[cropKey] || 0) + 1;
       tx.update(userRef(uid), { "inventory.crops": crops });
-      tx.update(tileRef(uid, tId), { crop: null, plantedAt: null, readyAt: null });
+      tx.delete(tileRef(uid, tId));
     });
   }
 
@@ -152,10 +141,8 @@
       if (listing.sellerId === buyerUid) throw new Error("Kendi ilanını alamazsın.");
       const total = listing.quantity * listing.pricePerUnit;
       const buyerSnap = await tx.get(userRef(buyerUid));
-      const sellerSnap = await tx.get(userRef(listing.sellerId));
       const buyer = buyerSnap.data();
-      const seller = sellerSnap.data();
-      if (!buyer || !seller) throw new Error("Kullanıcı bulunamadı.");
+      if (!buyer) throw new Error("Kullanıcı bulunamadı.");
       if (buyer.coins < total) throw new Error("Yetersiz altın.");
       const buyerCrops = { ...(buyer.inventory?.crops || {}) };
       buyerCrops[listing.crop] = (buyerCrops[listing.crop] || 0) + listing.quantity;
@@ -163,8 +150,9 @@
         coins: buyer.coins - total,
         "inventory.crops": buyerCrops
       });
+      // Satıcı doc'unu read etmeden güncelle (security rule privacy'yi açmaya gerek kalmaz)
       tx.update(userRef(listing.sellerId), {
-        coins: seller.coins + total
+        coins: firebase.firestore.FieldValue.increment(total)
       });
       tx.delete(listingRef);
     });

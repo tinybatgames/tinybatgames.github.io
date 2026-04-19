@@ -1,5 +1,4 @@
-// 6x6 tarla, sticky tohum seçimi, click-to-plant, timer, hasat.
-// FarmDB.listenToFarm & listenToUser ile realtime senkron.
+// 50x50 tarla. Label yok — tek hover tooltip. Boş tile = Firestore'da doc yok.
 
 class FarmScene extends Phaser.Scene {
   constructor() { super("FarmScene"); }
@@ -11,6 +10,8 @@ class FarmScene extends Phaser.Scene {
     this.userData = null;
     this.selectedSeed = null;
     this.seedPanel = null;
+    this.hoverTile = null;
+    this.readyTweens = {};
 
     this.cameras.main.setBackgroundColor("#2a1e14");
 
@@ -19,9 +20,10 @@ class FarmScene extends Phaser.Scene {
     const w = grid * size;
     const h = grid * size;
     const ox = (this.scale.width - w) / 2;
-    const oy = (this.scale.height - h) / 2 + 40;
+    const oy = 120;
+    this.gridOrigin = { x: ox, y: oy, size };
 
-    this.gridOrigin = { x: ox, y: oy };
+    this.add.rectangle(ox + w / 2, oy + h / 2, w + 4, h + 4, 0x1a1109).setStrokeStyle(2, 0x8b5a2b);
 
     for (let r = 0; r < grid; r++) {
       for (let c = 0; c < grid; c++) {
@@ -29,23 +31,28 @@ class FarmScene extends Phaser.Scene {
         const y = oy + r * size + size / 2;
         const tId = `${r}_${c}`;
 
-        const bg = this.add.image(x, y, "tile_soil").setInteractive({ useHandCursor: true });
-        const crop = this.add.image(x, y, "tile_soil").setVisible(false);
-        const label = this.add.text(x, y + size / 2 - 10, "", {
-          fontFamily: "Courier New, monospace",
-          fontSize: "12px",
-          color: "#ffffff",
-          stroke: "#000000",
-          strokeThickness: 3
-        }).setOrigin(0.5, 1);
+        const bg = this.add.image(x, y, "tile_soil")
+          .setDisplaySize(size, size)
+          .setInteractive({ useHandCursor: true });
+        const crop = this.add.image(x, y, "tile_soil")
+          .setDisplaySize(size, size)
+          .setVisible(false);
 
-        bg.on("pointerover", () => bg.setTint(0xffe7a8));
-        bg.on("pointerout", () => bg.clearTint());
+        bg.on("pointerover", () => this.onHover(tId, true));
+        bg.on("pointerout", () => this.onHover(tId, false));
         bg.on("pointerdown", () => this.onTileClick(tId));
 
-        this.tileSprites[tId] = { bg, crop, label, row: r, col: c };
+        this.tileSprites[tId] = { bg, crop, row: r, col: c, x, y };
       }
     }
+
+    this.tooltip = this.add.text(0, 0, "", {
+      fontFamily: "Courier New, monospace",
+      fontSize: "12px",
+      color: "#ffd56b",
+      backgroundColor: "#000000cc",
+      padding: { x: 6, y: 3 }
+    }).setOrigin(0.5, 1).setDepth(1000).setVisible(false);
 
     this.unsubFarm = window.FarmDB.listenToFarm(this.uid, (tiles) => {
       this.tiles = tiles;
@@ -58,7 +65,7 @@ class FarmScene extends Phaser.Scene {
       this.renderSeedPanel();
     });
 
-    this.time.addEvent({ delay: 1000, loop: true, callback: () => this.updateTimers() });
+    this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
 
     this.events.on("shutdown", () => {
       if (this.unsubFarm) this.unsubFarm();
@@ -75,8 +82,7 @@ class FarmScene extends Phaser.Scene {
     const seeds = this.userData?.inventory?.seeds || {};
     const have = (k) => (seeds[k] || 0) > 0;
     if (this.selectedSeed && have(this.selectedSeed)) return;
-    const first = window.CROP_KEYS.find(have);
-    this.selectedSeed = first || null;
+    this.selectedSeed = window.CROP_KEYS.find(have) || null;
   }
 
   renderSeedPanel() {
@@ -117,74 +123,111 @@ class FarmScene extends Phaser.Scene {
     this.seedPanel = container;
   }
 
+  stageOf(data) {
+    const readyMs = data.readyAt ? data.readyAt.toMillis() : 0;
+    const plantedMs = data.plantedAt ? data.plantedAt.toMillis() : 0;
+    const totalMs = Math.max(1, readyMs - plantedMs);
+    const progress = (Date.now() - plantedMs) / totalMs;
+    if (progress >= 1) return "ready";
+    if (progress >= 0.5) return "growing";
+    return "seedling";
+  }
+
   renderTiles() {
     for (const tId in this.tileSprites) {
       const sprite = this.tileSprites[tId];
       const data = this.tiles[tId];
       if (!data || !data.crop) {
-        sprite.crop.setVisible(false);
-        sprite.label.setText("");
-        continue;
-      }
-      const cropKey = data.crop;
-      const readyMs = data.readyAt ? data.readyAt.toMillis() : 0;
-      const plantedMs = data.plantedAt ? data.plantedAt.toMillis() : 0;
-      const totalMs = Math.max(1, readyMs - plantedMs);
-      const elapsed = Date.now() - plantedMs;
-      const progress = Phaser.Math.Clamp(elapsed / totalMs, 0, 1);
-
-      let stage = "seedling";
-      if (progress >= 1) stage = "ready";
-      else if (progress >= 0.5) stage = "growing";
-
-      sprite.crop.setTexture(`crop_${cropKey}_${stage}`).setVisible(true);
-
-      if (stage === "ready") {
-        sprite.label.setText("HAZIR!");
-        sprite.label.setColor("#ffd56b");
-        this.tweens.add({
-          targets: sprite.crop,
-          scale: { from: 1, to: 1.08 },
-          yoyo: true,
-          duration: 600,
-          repeat: -1,
-          ease: "Sine.easeInOut"
-        });
-      } else {
-        if (sprite.crop.scale !== 1) {
-          this.tweens.killTweensOf(sprite.crop);
+        if (sprite.crop.visible) sprite.crop.setVisible(false);
+        if (this.readyTweens[tId]) {
+          this.readyTweens[tId].stop();
+          delete this.readyTweens[tId];
           sprite.crop.setScale(1);
+          sprite.crop.setDisplaySize(window.TILE_PX, window.TILE_PX);
         }
-        sprite.label.setColor("#ffffff");
-        const remaining = Math.max(0, Math.ceil((readyMs - Date.now()) / 1000));
-        sprite.label.setText(this.formatSec(remaining));
+      }
+    }
+    for (const tId in this.tiles) {
+      this.updateTileSprite(tId);
+    }
+  }
+
+  updateTileSprite(tId) {
+    const sprite = this.tileSprites[tId];
+    const data = this.tiles[tId];
+    if (!sprite || !data || !data.crop) return;
+    const stage = this.stageOf(data);
+    const key = `crop_${data.crop}_${stage}`;
+    if (sprite.crop.texture.key !== key) {
+      sprite.crop.setTexture(key).setDisplaySize(window.TILE_PX, window.TILE_PX);
+    }
+    if (!sprite.crop.visible) sprite.crop.setVisible(true);
+
+    if (stage === "ready" && !this.readyTweens[tId]) {
+      this.readyTweens[tId] = this.tweens.add({
+        targets: sprite.crop,
+        scale: { from: sprite.crop.scale, to: sprite.crop.scale * 1.2 },
+        yoyo: true, duration: 600, repeat: -1, ease: "Sine.easeInOut"
+      });
+    } else if (stage !== "ready" && this.readyTweens[tId]) {
+      this.readyTweens[tId].stop();
+      delete this.readyTweens[tId];
+      sprite.crop.setScale(1);
+      sprite.crop.setDisplaySize(window.TILE_PX, window.TILE_PX);
+    }
+  }
+
+  tick() {
+    for (const tId in this.tiles) {
+      const data = this.tiles[tId];
+      if (!data || !data.crop) continue;
+      const sprite = this.tileSprites[tId];
+      if (!sprite) continue;
+      const expected = this.stageOf(data);
+      const currentKey = sprite.crop.texture.key;
+      if (!currentKey.endsWith(expected)) {
+        this.updateTileSprite(tId);
+      }
+    }
+    if (this.hoverTile) this.updateTooltip(this.hoverTile);
+  }
+
+  onHover(tId, over) {
+    const sprite = this.tileSprites[tId];
+    if (!sprite) return;
+    if (over) {
+      sprite.bg.setTint(0xffe7a8);
+      this.hoverTile = tId;
+      this.updateTooltip(tId);
+    } else {
+      sprite.bg.clearTint();
+      if (this.hoverTile === tId) {
+        this.hoverTile = null;
+        this.tooltip.setVisible(false);
       }
     }
   }
 
-  updateTimers() {
-    let needsRender = false;
-    for (const tId in this.tileSprites) {
-      const data = this.tiles[tId];
-      if (!data || !data.crop) continue;
+  updateTooltip(tId) {
+    const sprite = this.tileSprites[tId];
+    const data = this.tiles[tId];
+    let text;
+    if (!data || !data.crop) {
+      const seeds = this.userData?.inventory?.seeds || {};
+      if (this.selectedSeed && (seeds[this.selectedSeed] || 0) > 0) {
+        text = `Boş — ${window.CROPS[this.selectedSeed].name} ek`;
+      } else {
+        text = "Boş";
+      }
+    } else {
+      const c = window.CROPS[data.crop];
       const readyMs = data.readyAt ? data.readyAt.toMillis() : 0;
-      const plantedMs = data.plantedAt ? data.plantedAt.toMillis() : 0;
-      const totalMs = Math.max(1, readyMs - plantedMs);
-      const elapsed = Date.now() - plantedMs;
-      const progress = elapsed / totalMs;
-      const sprite = this.tileSprites[tId];
-      const currentTexture = sprite.crop.texture.key;
-      const expectedStage = progress >= 1 ? "ready" : progress >= 0.5 ? "growing" : "seedling";
-      if (!currentTexture.endsWith(expectedStage)) {
-        needsRender = true;
-        continue;
-      }
-      if (expectedStage !== "ready") {
-        const remaining = Math.max(0, Math.ceil((readyMs - Date.now()) / 1000));
-        sprite.label.setText(this.formatSec(remaining));
-      }
+      const remaining = Math.max(0, Math.ceil((readyMs - Date.now()) / 1000));
+      text = remaining === 0 ? `${c.name} — HAZIR` : `${c.name} — ${this.formatSec(remaining)}`;
     }
-    if (needsRender) this.renderTiles();
+    this.tooltip.setText(text);
+    this.tooltip.setPosition(sprite.x, sprite.y - window.TILE_PX / 2 - 4);
+    this.tooltip.setVisible(true);
   }
 
   formatSec(s) {
@@ -195,12 +238,8 @@ class FarmScene extends Phaser.Scene {
 
   async onTileClick(tId) {
     const data = this.tiles[tId];
-    if (!data) {
-      this.flashMessage("Tarla yükleniyor...");
-      return;
-    }
 
-    if (data.crop) {
+    if (data && data.crop) {
       const readyMs = data.readyAt ? data.readyAt.toMillis() : 0;
       if (Date.now() >= readyMs) {
         if (!window.ActionLock.tryStart()) return;
@@ -213,7 +252,6 @@ class FarmScene extends Phaser.Scene {
       return;
     }
 
-    // Boş tile → seçili tohum varsa direkt ek
     const seeds = this.userData?.inventory?.seeds || {};
     if (this.selectedSeed && (seeds[this.selectedSeed] || 0) > 0) {
       if (!window.ActionLock.tryStart()) return;

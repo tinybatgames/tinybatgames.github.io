@@ -28,6 +28,7 @@ window.CROPS = {
 
 window.CROP_KEYS = Object.keys(window.CROPS);
 
-window.GRID_SIZE = 6;
-window.TILE_PX = 72;
+window.GRID_SIZE = 50;
+window.TILE_PX = 10;
 window.STARTING_COINS = 1000;
+window.TILE_SOURCE_PX = 64;

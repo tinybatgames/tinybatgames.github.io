@@ -7,6 +7,7 @@ class MarketScene extends Phaser.Scene {
     this.userData = null;
     this.listings = [];
     this.activeTab = "seeds";
+    this.listingFilter = { crop: "all", sort: "newest" };
 
     this.cameras.main.setBackgroundColor("#2a1e14");
 
@@ -89,16 +90,19 @@ class MarketScene extends Phaser.Scene {
   }
 
   drawListings() {
-    if (this.listings.length === 0) {
-      const t = this.add.text(this.scale.width / 2, 200, "Henüz ilan yok.", {
+    this.drawFilterBar();
+    const filtered = this.applyFilters(this.listings);
+
+    if (filtered.length === 0) {
+      const t = this.add.text(this.scale.width / 2, 260, this.listings.length === 0 ? "Henüz ilan yok." : "Filtreye uyan ilan yok.", {
         fontFamily: "Courier New, monospace", fontSize: "16px", color: "#c9b28a"
       }).setOrigin(0.5);
       this.layer.add(t);
       return;
     }
-    const y0 = 150;
-    const rowH = 56;
-    this.listings.slice(0, 10).forEach((l, i) => {
+    const y0 = 230;
+    const rowH = 50;
+    filtered.slice(0, 8).forEach((l, i) => {
       const c = window.CROPS[l.crop];
       if (!c) return;
       const y = y0 + i * rowH;
@@ -255,6 +259,75 @@ class MarketScene extends Phaser.Scene {
     }, 160);
 
     this.layer.add([pTitle, pHint, priceLabel, ...pMinus10, ...pMinus, ...pPlus, ...pPlus10, totalLabel, ...listBtn]);
+  }
+
+  drawFilterBar() {
+    const cx = this.scale.width / 2;
+    // Tür filtresi
+    const cropOpts = [
+      { key: "all", label: "Tümü" },
+      ...window.CROP_KEYS.map(k => ({ key: k, label: window.CROPS[k].name }))
+    ];
+    const cropSpacing = 90;
+    const cropStartX = cx - ((cropOpts.length - 1) * cropSpacing) / 2;
+    const cropLabel = this.add.text(cropStartX - 70, 140, "Tür:", {
+      fontFamily: "Courier New, monospace", fontSize: "12px", color: "#ffd56b"
+    }).setOrigin(0.5);
+    this.layer.add(cropLabel);
+    cropOpts.forEach((opt, i) => {
+      const chip = this.makeChip(cropStartX + i * cropSpacing, 140, opt.label, this.listingFilter.crop === opt.key, () => {
+        this.listingFilter.crop = opt.key;
+        this.rebuild();
+      });
+      this.layer.add(chip);
+    });
+
+    // Sıralama
+    const sortOpts = [
+      { key: "newest", label: "Yeni" },
+      { key: "price_asc", label: "Fiyat ↑" },
+      { key: "price_desc", label: "Fiyat ↓" },
+      { key: "qty_desc", label: "Miktar ↓" }
+    ];
+    const sortSpacing = 95;
+    const sortStartX = cx - ((sortOpts.length - 1) * sortSpacing) / 2;
+    const sortLabel = this.add.text(sortStartX - 70, 180, "Sırala:", {
+      fontFamily: "Courier New, monospace", fontSize: "12px", color: "#ffd56b"
+    }).setOrigin(0.5);
+    this.layer.add(sortLabel);
+    sortOpts.forEach((opt, i) => {
+      const chip = this.makeChip(sortStartX + i * sortSpacing, 180, opt.label, this.listingFilter.sort === opt.key, () => {
+        this.listingFilter.sort = opt.key;
+        this.rebuild();
+      });
+      this.layer.add(chip);
+    });
+  }
+
+  applyFilters(listings) {
+    let list = listings.slice();
+    if (this.listingFilter.crop !== "all") {
+      list = list.filter(l => l.crop === this.listingFilter.crop);
+    }
+    const s = this.listingFilter.sort;
+    if (s === "price_asc") list.sort((a, b) => a.pricePerUnit - b.pricePerUnit);
+    else if (s === "price_desc") list.sort((a, b) => b.pricePerUnit - a.pricePerUnit);
+    else if (s === "qty_desc") list.sort((a, b) => b.quantity - a.quantity);
+    // newest = Firestore zaten createdAt desc ile geliyor
+    return list;
+  }
+
+  makeChip(x, y, text, active, onClick) {
+    const bg = this.add.rectangle(x, y, 78, 26, active ? 0x8b5a2b : 0x3d2a1a)
+      .setStrokeStyle(2, active ? 0xffd56b : 0x8b5a2b).setInteractive({ useHandCursor: true });
+    const t = this.add.text(x, y, text, {
+      fontFamily: "Courier New, monospace", fontSize: "11px",
+      color: active ? "#ffffff" : "#c9b28a"
+    }).setOrigin(0.5);
+    bg.on("pointerover", () => bg.setFillStyle(active ? 0xa06a35 : 0x5a3f24));
+    bg.on("pointerout", () => bg.setFillStyle(active ? 0x8b5a2b : 0x3d2a1a));
+    bg.on("pointerdown", onClick);
+    return [bg, t];
   }
 
   makeButton(x, y, text, onClick, width = 70) {

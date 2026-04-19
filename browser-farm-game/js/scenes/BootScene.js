@@ -19,7 +19,7 @@ class BootScene extends Phaser.Scene {
 
   makeTile() {
     const g = this.add.graphics();
-    const size = window.TILE_PX;
+    const size = window.TILE_SOURCE_PX;
     g.fillStyle(0x6b4423); g.fillRect(0, 0, size, size);
     g.fillStyle(0x8b5a2b); g.fillRect(2, 2, size - 4, size - 4);
     g.fillStyle(0x5a3818);
@@ -40,7 +40,7 @@ class BootScene extends Phaser.Scene {
 
   makeCrop(key, crop, stage) {
     const g = this.add.graphics();
-    const size = window.TILE_PX;
+    const size = window.TILE_SOURCE_PX;
     const cx = size / 2;
     const cy = size / 2;
 
