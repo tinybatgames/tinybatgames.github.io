@@ -5,22 +5,32 @@
 (function () {
   function db() { return firebase.firestore(); }
   function now() { return firebase.firestore.FieldValue.serverTimestamp(); }
+  function inc(n) { return firebase.firestore.FieldValue.increment(n); }
 
   function userRef(uid) { return db().collection("users").doc(uid); }
   function tileRef(uid, tileId) { return db().collection("farms").doc(uid).collection("tiles").doc(tileId); }
   function farmTilesRef(uid) { return db().collection("farms").doc(uid).collection("tiles"); }
   function marketRef() { return db().collection("market"); }
+  function leaderboardRef(uid) { return db().collection("leaderboard").doc(uid); }
+  function leaderboardCol() { return db().collection("leaderboard"); }
 
   function tileId(row, col) { return `${row}_${col}`; }
 
   async function initializeNewPlayer(uid, username) {
-    // Tile docs lazy: plantSeed sırasında oluşturulur, boş tile = doc yok.
-    await userRef(uid).set({
+    const batch = db().batch();
+    batch.set(userRef(uid), {
       username,
       coins: window.STARTING_COINS,
+      exp: 0,
       inventory: { seeds: {}, crops: {} },
       createdAt: now()
     });
+    batch.set(leaderboardRef(uid), {
+      username,
+      exp: 0,
+      updatedAt: now()
+    });
+    await batch.commit();
   }
 
   function listenToUser(uid, cb) {
@@ -41,6 +51,13 @@
       snap.forEach(doc => listings.push({ id: doc.id, ...doc.data() }));
       cb(listings);
     });
+  }
+
+  async function fetchLeaderboard(limit = 100) {
+    const snap = await leaderboardCol().orderBy("exp", "desc").limit(limit).get();
+    const list = [];
+    snap.forEach(doc => list.push({ uid: doc.id, ...doc.data() }));
+    return list;
   }
 
   // Tohum satın al (NPC, sabit fiyat)
@@ -88,8 +105,9 @@
     });
   }
 
-  // Hazır ekini hasat et
+  // Hazır ekini hasat et — exp kazandırır ve leaderboard'a yansıtır.
   async function harvestTile(uid, tId) {
+    let expGain = 0;
     await db().runTransaction(async tx => {
       const tileSnap = await tx.get(tileRef(uid, tId));
       const userSnap = await tx.get(userRef(uid));
@@ -99,11 +117,23 @@
       const readyMs = tile.readyAt.toMillis();
       if (Date.now() < readyMs) throw new Error("Henüz hazır değil.");
       const cropKey = tile.crop;
+      const cropDef = window.CROPS[cropKey];
+      expGain = (cropDef && cropDef.exp) || 0;
       const crops = { ...(user.inventory?.crops || {}) };
       crops[cropKey] = (crops[cropKey] || 0) + 1;
-      tx.update(userRef(uid), { "inventory.crops": crops });
+      const userPatch = { "inventory.crops": crops };
+      if (expGain > 0) userPatch.exp = inc(expGain);
+      tx.update(userRef(uid), userPatch);
+      if (expGain > 0) {
+        tx.set(leaderboardRef(uid), {
+          username: user.username,
+          exp: inc(expGain),
+          updatedAt: now()
+        }, { merge: true });
+      }
       tx.delete(tileRef(uid, tId));
     });
+    return expGain;
   }
 
   // İlan oluştur (envanterden düş)
@@ -152,7 +182,7 @@
       });
       // Satıcı doc'unu read etmeden güncelle (security rule privacy'yi açmaya gerek kalmaz)
       tx.update(userRef(listing.sellerId), {
-        coins: firebase.firestore.FieldValue.increment(total)
+        coins: inc(total)
       });
       tx.delete(listingRef);
     });
@@ -200,6 +230,7 @@
     buySeed, plantSeed, harvestTile,
     sellCropToMarket,
     createListing, buyListing, cancelListing,
+    fetchLeaderboard,
     tileId
   };
 })();

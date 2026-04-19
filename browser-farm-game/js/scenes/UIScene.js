@@ -1,4 +1,4 @@
-// Üst bar: takma ad + altın (sol pill paneli) + sağda sekme butonları. Tüm sahne geçişleri burada.
+// Üst bar: avatar + ad + level + exp barı (sol pill); sağda sekme butonları.
 
 class UIScene extends Phaser.Scene {
   constructor() { super({ key: "UIScene", active: false }); }
@@ -16,8 +16,8 @@ class UIScene extends Phaser.Scene {
     bg.lineStyle(2, 0x8b5a2b, 1);
     bg.lineBetween(0, barH, W, barH);
 
-    // Sol bilgi pill'i (avatar + kullanıcı adı + altın)
-    const pX = 14, pY = 12, pW = 300, pH = 40, pR = 20;
+    // Sol bilgi pill'i (avatar + ad/level + exp barı + altın)
+    const pX = 12, pY = 8, pW = 360, pH = 48, pR = 24;
     const pBg = this.add.graphics();
     pBg.fillStyle(0x1a1109, 1);
     pBg.fillRoundedRect(pX, pY, pW, pH, pR);
@@ -25,37 +25,61 @@ class UIScene extends Phaser.Scene {
     pBg.strokeRoundedRect(pX, pY, pW, pH, pR);
 
     // Avatar dairesi
-    const aCX = pX + 22, aCY = pY + pH / 2;
+    const aCX = pX + 26, aCY = pY + pH / 2;
     const av = this.add.graphics();
     av.fillStyle(0x6b4220, 1);
-    av.fillCircle(aCX, aCY, 15);
+    av.fillCircle(aCX, aCY, 17);
     av.lineStyle(2, 0xc8923a, 1);
-    av.strokeCircle(aCX, aCY, 15);
+    av.strokeCircle(aCX, aCY, 17);
 
-    this.nameText = this.add.text(pX + 44, pY + pH / 2, "...", {
-      fontFamily: "Courier New, monospace", fontSize: "14px", color: "#ffd56b"
+    // Satır 1: kullanıcı adı + level rozeti
+    this.nameText = this.add.text(aCX + 24, pY + 14, "...", {
+      fontFamily: "Courier New, monospace", fontSize: "13px", fontStyle: "bold", color: "#ffd56b"
     }).setOrigin(0, 0.5);
 
-    // Pill içinde ayırıcı
-    const dividerX = pX + 180;
+    this.levelText = this.add.text(pX + 224, pY + 14, "Lv.1", {
+      fontFamily: "Courier New, monospace", fontSize: "11px", fontStyle: "bold", color: "#ffd56b"
+    }).setOrigin(1, 0.5);
+
+    // Satır 2: exp barı + sayı
+    this.expBarX = aCX + 24;
+    this.expBarY = pY + 34;
+    this.expBarW = 158;
+    this.expBarH = 7;
+
+    const expBg = this.add.graphics();
+    expBg.fillStyle(0x3a2419, 1);
+    expBg.fillRoundedRect(this.expBarX, this.expBarY - this.expBarH / 2, this.expBarW, this.expBarH, 3);
+    expBg.lineStyle(1, 0x6b4220, 1);
+    expBg.strokeRoundedRect(this.expBarX, this.expBarY - this.expBarH / 2, this.expBarW, this.expBarH, 3);
+
+    this.expBarFill = this.add.graphics();
+
+    this.expText = this.add.text(this.expBarX + this.expBarW + 6, this.expBarY, "0/100", {
+      fontFamily: "Courier New, monospace", fontSize: "9px", color: "#c9b28a"
+    }).setOrigin(0, 0.5);
+
+    // Pill içinde dikey ayırıcı
+    const dividerX = pX + pW - 80;
     const dv = this.add.graphics();
     dv.lineStyle(1, 0xc8923a, 0.3);
     dv.lineBetween(dividerX, pY + 10, dividerX, pY + pH - 10);
 
     this.coinIcon = this.add.image(dividerX + 18, pY + pH / 2, "icon_coin");
     this.coinText = this.add.text(dividerX + 34, pY + pH / 2, "0", {
-      fontFamily: "Courier New, monospace", fontSize: "15px", color: "#ffd56b"
+      fontFamily: "Courier New, monospace", fontSize: "14px", color: "#ffd56b"
     }).setOrigin(0, 0.5);
 
-    // Sağ sekme butonları
+    // Sağ sekme butonları (sağdan sola yerleştir)
     const btnY = barH / 2;
-    this.farmBtn = this.makeTab(W - 412, btnY, 100, 34, "Tarla", () => this.switchTab("farm"));
-    this.invBtn = this.makeTab(W - 296, btnY, 112, 34, "Envanter", () => this.switchTab("inventory"));
-    this.marketBtn = this.makeTab(W - 180, btnY, 100, 34, "Pazar", () => this.switchTab("market"));
-    this.logoutBtn = this.makeTab(W - 62, btnY, 92, 34, "Çıkış", async () => {
+    this.logoutBtn = this.makeTab(W - 50, btnY, 80, 32, "Çıkış", async () => {
       await window.FarmAuth.logout();
       location.reload();
     }, { subtle: true });
+    this.leaderBtn = this.makeTab(W - 152, btnY, 116, 32, "Sıralama", () => this.switchTab("leaderboard"));
+    this.marketBtn = this.makeTab(W - 258, btnY, 88, 32, "Pazar", () => this.switchTab("market"));
+    this.invBtn = this.makeTab(W - 360, btnY, 108, 32, "Envanter", () => this.switchTab("inventory"));
+    this.farmBtn = this.makeTab(W - 458, btnY, 84, 32, "Tarla", () => this.switchTab("farm"));
 
     this.game.events.on("userUpdated", this.updateUser, this);
     this.game.events.on("actionStart", this.showProgress, this);
@@ -132,12 +156,18 @@ class UIScene extends Phaser.Scene {
     set(this.farmBtn, this.currentTab === "farm");
     set(this.invBtn, this.currentTab === "inventory");
     set(this.marketBtn, this.currentTab === "market");
+    set(this.leaderBtn, this.currentTab === "leaderboard");
     set(this.logoutBtn, false);
   }
 
   switchTab(tab) {
     if (tab === this.currentTab) return;
-    const map = { farm: "FarmScene", inventory: "InventoryScene", market: "MarketScene" };
+    const map = {
+      farm: "FarmScene",
+      inventory: "InventoryScene",
+      market: "MarketScene",
+      leaderboard: "LeaderboardScene"
+    };
     const target = map[tab];
     if (!target) return;
 
@@ -161,6 +191,24 @@ class UIScene extends Phaser.Scene {
     if (!user) return;
     this.nameText.setText(`@${user.username}`);
     this.coinText.setText(String(user.coins ?? 0));
+
+    const exp = user.exp || 0;
+    const level = window.levelFromExp(exp);
+    const curBase = window.expForLevel(level);
+    const nextBase = window.expForLevel(level + 1);
+    const span = Math.max(1, nextBase - curBase);
+    const into = Math.max(0, exp - curBase);
+    const ratio = Math.min(1, into / span);
+
+    this.levelText.setText(`Lv.${level}`);
+    this.expText.setText(`${into}/${span}`);
+
+    this.expBarFill.clear();
+    if (ratio > 0) {
+      const fw = Math.max(2, ratio * this.expBarW);
+      this.expBarFill.fillStyle(0xe8b050, 1);
+      this.expBarFill.fillRoundedRect(this.expBarX, this.expBarY - this.expBarH / 2, fw, this.expBarH, 3);
+    }
   }
 }
 

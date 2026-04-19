@@ -30,6 +30,13 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
+    // leaderboard/{uid} — public (authed) okuma; yalnızca kendi entry'sini yazabilir
+    // Bu ayrı koleksiyon sayesinde users/{uid} private kalır (coins/inventory paylaşılmaz)
+    match /leaderboard/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
     // market — okuma herkese açık (giriş yapmış kullanıcılara), yazma authed
     match /market/{listingId} {
       allow read: if request.auth != null;

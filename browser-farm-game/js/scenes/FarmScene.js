@@ -258,7 +258,10 @@ class FarmScene extends Phaser.Scene {
       const readyMs = data.readyAt ? data.readyAt.toMillis() : 0;
       if (Date.now() >= readyMs) {
         if (!window.ActionLock.tryStart()) return;
-        try { await window.FarmDB.harvestTile(this.uid, tId); }
+        try {
+          const expGain = await window.FarmDB.harvestTile(this.uid, tId);
+          this.showFloatingExp(tId, expGain);
+        }
         catch (err) { this.flashMessage(err.message); }
       } else {
         const remaining = Math.ceil((readyMs - Date.now()) / 1000);
@@ -337,6 +340,24 @@ class FarmScene extends Phaser.Scene {
     }
 
     this.plantMenu = container;
+  }
+
+  showFloatingExp(tId, exp) {
+    if (!exp) return;
+    const sprite = this.tileSprites[tId];
+    if (!sprite) return;
+    const t = this.add.text(sprite.x, sprite.y - 4, `+${exp} EXP`, {
+      fontFamily: "Courier New, monospace", fontSize: "14px", fontStyle: "bold",
+      color: "#9be8ff", stroke: "#0a1822", strokeThickness: 3
+    }).setOrigin(0.5).setDepth(800);
+    this.tweens.add({
+      targets: t,
+      y: sprite.y - 44,
+      alpha: { from: 1, to: 0 },
+      duration: 1100,
+      ease: "Cubic.easeOut",
+      onComplete: () => t.destroy()
+    });
   }
 
   flashMessage(msg) {

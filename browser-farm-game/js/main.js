@@ -59,7 +59,7 @@
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
       },
-      scene: [window.BootScene, window.FarmScene, window.MarketScene, window.InventoryScene, window.UIScene]
+      scene: [window.BootScene, window.FarmScene, window.MarketScene, window.InventoryScene, window.LeaderboardScene, window.UIScene]
     };
     const game = new Phaser.Game(config);
     window.ActionLock.setEmitter(game.events);
