@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini Tarla</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="setup-warning" class="hidden">
+    <div class="card">
+      <h2>Kurulum gerekli</h2>
+      <p><code>js/firebase-config.js</code> dosyasını aç ve Firebase projenin
+        yapılandırma değerlerini yapıştır. Adımlar:</p>
+      <ol>
+        <li><a href="https://console.firebase.google.com" target="_blank" rel="noopener">console.firebase.google.com</a> &rarr; yeni proje</li>
+        <li>Authentication &rarr; Email/Password aktif et</li>
+        <li>Firestore Database &rarr; oluştur (production modu)</li>
+        <li>Firestore &rarr; Rules: <code>FIRESTORE_RULES.txt</code> içeriğini yapıştır</li>
+        <li>Proje ayarları &rarr; Web uygulaması ekle &rarr; <code>firebaseConfig</code> değerlerini kopyala &rarr; <code>js/firebase-config.js</code>'e yapıştır</li>
+        <li>Sayfayı yenile</li>
+      </ol>
+    </div>
+  </div>
+
+  <div id="auth-screen" class="hidden">
+    <div class="card">
+      <h1>Mini Tarla</h1>
+      <p class="subtitle">Takma adın ve şifrenle gir</p>
+      <input id="auth-username" type="text" placeholder="takma ad" maxlength="20" autocomplete="off" />
+      <input id="auth-password" type="password" placeholder="şifre" autocomplete="off" />
+      <div class="row">
+        <button id="btn-login">Giriş</button>
+        <button id="btn-register">Kayıt ol</button>
+      </div>
+      <p id="auth-error" class="error"></p>
+    </div>
+  </div>
+
+  <div id="game-root" class="hidden"></div>
+
+  <!-- Phaser -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+
+  <!-- Firebase v10 compat (global `firebase` objesi — modül gerekmez) -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+
+  <!-- Oyun kodu -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/crops.js"></script>
+  <script src="js/actionlock.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/scenes/BootScene.js"></script>
+  <script src="js/scenes/UIScene.js"></script>
+  <script src="js/scenes/FarmScene.js"></script>
+  <script src="js/scenes/MarketScene.js"></script>
+  <script src="js/scenes/InventoryScene.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
