@@ -90,10 +90,15 @@ class FarmScene extends Phaser.Scene {
     if (this.seedPanel) { this.seedPanel.destroy(); this.seedPanel = null; }
 
     const cx = this.scale.width / 2;
-    const y = 85;
+    const y = 100;
     const container = this.add.container(cx, y).setDepth(400);
 
-    const bg = this.add.rectangle(0, 0, 460, 44, 0x3d2a1a).setStrokeStyle(2, 0x8b5a2b);
+    const panelW = 460, panelH = 44;
+    const bg = this.add.graphics();
+    bg.fillStyle(0x1a1109, 1);
+    bg.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 22);
+    bg.lineStyle(2, 0xc8923a, 1);
+    bg.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 22);
     container.add(bg);
 
     const seeds = this.userData?.inventory?.seeds || {};
@@ -105,15 +110,24 @@ class FarmScene extends Phaser.Scene {
       }).setOrigin(0, 0.5);
       container.add([icon, label]);
 
-      const btnBg = this.add.rectangle(170, 0, 100, 28, 0x8b5a2b)
-        .setStrokeStyle(2, 0xffd56b).setInteractive({ useHandCursor: true });
+      const btnW = 100, btnH = 28;
+      const btnG = this.add.graphics();
+      const drawBtn = (hover) => {
+        btnG.clear();
+        btnG.fillStyle(hover ? 0xe8b050 : 0xc8923a, 1);
+        btnG.fillRoundedRect(170 - btnW / 2, -btnH / 2, btnW, btnH, btnH / 2);
+        btnG.lineStyle(2, 0xffd56b, 1);
+        btnG.strokeRoundedRect(170 - btnW / 2, -btnH / 2, btnW, btnH, btnH / 2);
+      };
+      drawBtn(false);
+      const btnZone = this.add.rectangle(170, 0, btnW, btnH, 0x000000, 0).setInteractive({ useHandCursor: true });
       const btnT = this.add.text(170, 0, "Değiştir", {
-        fontFamily: "Courier New, monospace", fontSize: "12px", color: "#ffffff"
+        fontFamily: "Courier New, monospace", fontSize: "12px", color: "#2a1810"
       }).setOrigin(0.5);
-      btnBg.on("pointerover", () => btnBg.setFillStyle(0xa06a35));
-      btnBg.on("pointerout", () => btnBg.setFillStyle(0x8b5a2b));
-      btnBg.on("pointerdown", () => this.openSeedPicker());
-      container.add([btnBg, btnT]);
+      btnZone.on("pointerover", () => drawBtn(true));
+      btnZone.on("pointerout", () => drawBtn(false));
+      btnZone.on("pointerdown", () => this.openSeedPicker());
+      container.add([btnG, btnZone, btnT]);
     } else {
       const label = this.add.text(-200, 0, "Tohum yok — Pazardan al.", {
         fontFamily: "Courier New, monospace", fontSize: "14px", color: "#c9b28a"
