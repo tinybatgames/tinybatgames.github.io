@@ -15,6 +15,12 @@ class FarmScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor("#2a1e14");
 
+    // Sürükleyerek ekme durumu
+    this.dragPlanting = false;
+    this.plantedDuringDrag = new Set();
+    this.plantQueue = [];
+    this.plantingNow = false;
+
     const cols = window.GRID_COLS;
     const rows = window.GRID_ROWS;
     const size = window.TILE_PX;
@@ -39,7 +45,10 @@ class FarmScene extends Phaser.Scene {
           .setDisplaySize(size, size)
           .setVisible(false);
 
-        bg.on("pointerover", () => this.onHover(tId, true));
+        bg.on("pointerover", (pointer) => {
+          this.onHover(tId, true);
+          if (this.dragPlanting && pointer && pointer.isDown) this.queuePlant(tId);
+        });
         bg.on("pointerout", () => this.onHover(tId, false));
         bg.on("pointerdown", () => this.onTileClick(tId));
 
@@ -67,6 +76,9 @@ class FarmScene extends Phaser.Scene {
     });
 
     this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
+
+    this.input.on("pointerup", () => this.endDragPlant());
+    this.input.on("pointerupoutside", () => this.endDragPlant());
 
     this.scale.on("resize", this.onResize, this);
 
@@ -299,14 +311,56 @@ class FarmScene extends Phaser.Scene {
     }
 
     const seeds = this.userData?.inventory?.seeds || {};
-    if (this.selectedSeed && (seeds[this.selectedSeed] || 0) > 0) {
-      if (!window.ActionLock.tryStart()) return;
-      try { await window.FarmDB.plantSeed(this.uid, tId, this.selectedSeed); }
-      catch (err) { this.flashMessage(err.message); }
+    if (!this.selectedSeed || (seeds[this.selectedSeed] || 0) <= 0) {
+      this.flashMessage("Tohum yok — Pazardan al.");
       return;
     }
 
-    this.flashMessage("Tohum yok — Pazardan al.");
+    this.dragPlanting = true;
+    this.plantedDuringDrag = new Set();
+    this.queuePlant(tId);
+  }
+
+  queuePlant(tId) {
+    if (!this.dragPlanting) return;
+    if (this.plantedDuringDrag.has(tId)) return;
+    const data = this.tiles[tId];
+    if (data && data.crop) return;
+    const seeds = this.userData?.inventory?.seeds || {};
+    if (!this.selectedSeed) return;
+    const haveSeeds = (seeds[this.selectedSeed] || 0);
+    const pending = this.plantQueue.filter(q => q.seed === this.selectedSeed).length
+      + (this.plantingNow && this.plantingSeed === this.selectedSeed ? 1 : 0);
+    if (haveSeeds - pending <= 0) return;
+
+    this.plantedDuringDrag.add(tId);
+    this.plantQueue.push({ tId, seed: this.selectedSeed });
+    this.processPlantQueue();
+  }
+
+  async processPlantQueue() {
+    if (this.plantingNow) return;
+    while (this.plantQueue.length > 0) {
+      const job = this.plantQueue.shift();
+      this.plantingNow = true;
+      this.plantingSeed = job.seed;
+      try {
+        await window.FarmDB.plantSeed(this.uid, job.tId, job.seed);
+      } catch (err) {
+        this.flashMessage(err.message);
+        this.plantQueue = [];
+        this.plantingNow = false;
+        this.plantingSeed = null;
+        return;
+      }
+      this.plantingNow = false;
+      this.plantingSeed = null;
+    }
+  }
+
+  endDragPlant() {
+    this.dragPlanting = false;
+    this.plantedDuringDrag = new Set();
   }
 
   openSeedPicker() {
