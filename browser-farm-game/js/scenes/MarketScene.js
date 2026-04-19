@@ -21,9 +21,12 @@ class MarketScene extends Phaser.Scene {
       if (this.activeTab === "listings") this.rebuild();
     });
 
+    this.scale.on("resize", this.rebuild, this);
+
     this.events.on("shutdown", () => {
       if (this.unsubUser) this.unsubUser();
       if (this.unsubMarket) this.unsubMarket();
+      this.scale.off("resize", this.rebuild, this);
     });
 
     this.layer = this.add.container(0, 0);
@@ -451,7 +454,7 @@ class MarketScene extends Phaser.Scene {
 
   toast(msg) {
     if (this.toastText) this.toastText.destroy();
-    this.toastText = this.add.text(this.scale.width / 2, 560, msg, {
+    this.toastText = this.add.text(this.scale.width / 2, this.scale.height - 60, msg, {
       fontFamily: "Courier New, monospace", fontSize: "15px", color: "#ffd56b",
       backgroundColor: "#00000099", padding: { x: 10, y: 6 }
     }).setOrigin(0.5).setDepth(1000);

@@ -5,6 +5,33 @@ class UIScene extends Phaser.Scene {
 
   create() {
     this.currentTab = "farm";
+    this.lastUser = null;
+    this.layoutLayer = this.add.container(0, 0).setDepth(0);
+
+    this.buildLayout();
+
+    this.game.events.on("userUpdated", this.onUserUpdated, this);
+    this.game.events.on("actionStart", this.showProgress, this);
+    this.game.events.on("actionEnd", this.hideProgress, this);
+    this.scale.on("resize", this.onResize, this);
+
+    this.events.on("shutdown", () => {
+      this.game.events.off("userUpdated", this.onUserUpdated, this);
+      this.game.events.off("actionStart", this.showProgress, this);
+      this.game.events.off("actionEnd", this.hideProgress, this);
+      this.scale.off("resize", this.onResize, this);
+    });
+  }
+
+  onResize() {
+    this.hideProgress();
+    this.layoutLayer.removeAll(true);
+    this.buildLayout();
+    this.refreshTabs();
+    if (this.lastUser) this.updateUser(this.lastUser);
+  }
+
+  buildLayout() {
     const barH = 64;
     const W = this.scale.width;
     this.barH = barH;
@@ -15,6 +42,7 @@ class UIScene extends Phaser.Scene {
     bg.fillRect(0, 0, W, barH);
     bg.lineStyle(2, 0x8b5a2b, 1);
     bg.lineBetween(0, barH, W, barH);
+    this.layoutLayer.add(bg);
 
     // Sol bilgi pill'i (avatar + ad/level + exp barı + altın)
     const pX = 12, pY = 8, pW = 360, pH = 48, pR = 24;
@@ -23,6 +51,7 @@ class UIScene extends Phaser.Scene {
     pBg.fillRoundedRect(pX, pY, pW, pH, pR);
     pBg.lineStyle(2, 0xc8923a, 1);
     pBg.strokeRoundedRect(pX, pY, pW, pH, pR);
+    this.layoutLayer.add(pBg);
 
     // Avatar dairesi
     const aCX = pX + 26, aCY = pY + pH / 2;
@@ -31,15 +60,18 @@ class UIScene extends Phaser.Scene {
     av.fillCircle(aCX, aCY, 17);
     av.lineStyle(2, 0xc8923a, 1);
     av.strokeCircle(aCX, aCY, 17);
+    this.layoutLayer.add(av);
 
     // Satır 1: kullanıcı adı + level rozeti
     this.nameText = this.add.text(aCX + 24, pY + 14, "...", {
       fontFamily: "Courier New, monospace", fontSize: "13px", fontStyle: "bold", color: "#ffd56b"
     }).setOrigin(0, 0.5);
+    this.layoutLayer.add(this.nameText);
 
     this.levelText = this.add.text(pX + 224, pY + 14, "Lv.1", {
       fontFamily: "Courier New, monospace", fontSize: "11px", fontStyle: "bold", color: "#ffd56b"
     }).setOrigin(1, 0.5);
+    this.layoutLayer.add(this.levelText);
 
     // Satır 2: exp barı + sayı
     this.expBarX = aCX + 24;
@@ -52,23 +84,28 @@ class UIScene extends Phaser.Scene {
     expBg.fillRoundedRect(this.expBarX, this.expBarY - this.expBarH / 2, this.expBarW, this.expBarH, 3);
     expBg.lineStyle(1, 0x6b4220, 1);
     expBg.strokeRoundedRect(this.expBarX, this.expBarY - this.expBarH / 2, this.expBarW, this.expBarH, 3);
+    this.layoutLayer.add(expBg);
 
     this.expBarFill = this.add.graphics();
+    this.layoutLayer.add(this.expBarFill);
 
     this.expText = this.add.text(this.expBarX + this.expBarW + 6, this.expBarY, "0/100", {
       fontFamily: "Courier New, monospace", fontSize: "9px", color: "#c9b28a"
     }).setOrigin(0, 0.5);
+    this.layoutLayer.add(this.expText);
 
     // Pill içinde dikey ayırıcı
     const dividerX = pX + pW - 80;
     const dv = this.add.graphics();
     dv.lineStyle(1, 0xc8923a, 0.3);
     dv.lineBetween(dividerX, pY + 10, dividerX, pY + pH - 10);
+    this.layoutLayer.add(dv);
 
     this.coinIcon = this.add.image(dividerX + 18, pY + pH / 2, "icon_coin");
     this.coinText = this.add.text(dividerX + 34, pY + pH / 2, "0", {
       fontFamily: "Courier New, monospace", fontSize: "14px", color: "#ffd56b"
     }).setOrigin(0, 0.5);
+    this.layoutLayer.add([this.coinIcon, this.coinText]);
 
     // Sağ sekme butonları (sağdan sola yerleştir)
     const btnY = barH / 2;
@@ -79,18 +116,7 @@ class UIScene extends Phaser.Scene {
     this.leaderBtn = this.makeTab(W - 152, btnY, 116, 32, "Sıralama", () => this.switchTab("leaderboard"));
     this.marketBtn = this.makeTab(W - 258, btnY, 88, 32, "Pazar", () => this.switchTab("market"));
     this.invBtn = this.makeTab(W - 360, btnY, 108, 32, "Envanter", () => this.switchTab("inventory"));
-    this.farmBtn = this.makeTab(W - 458, btnY, 84, 32, "Tarla", () => this.switchTab("farm"));
-
-    this.game.events.on("userUpdated", this.updateUser, this);
-    this.game.events.on("actionStart", this.showProgress, this);
-    this.game.events.on("actionEnd", this.hideProgress, this);
-    this.events.on("shutdown", () => {
-      this.game.events.off("userUpdated", this.updateUser, this);
-      this.game.events.off("actionStart", this.showProgress, this);
-      this.game.events.off("actionEnd", this.hideProgress, this);
-    });
-
-    this.refreshTabs();
+    this.farmBtn = this.makeTab(W - 462, btnY, 84, 32, "Tarla", () => this.switchTab("farm"));
   }
 
   showProgress({ duration } = { duration: 250 }) {
@@ -147,6 +173,7 @@ class UIScene extends Phaser.Scene {
     zone.on("pointerover", () => { if (!btn.active) draw("hover"); });
     zone.on("pointerout", () => { if (!btn.active) draw("normal"); });
     draw("normal");
+    this.layoutLayer.add([g, zone, t]);
     return btn;
   }
 
@@ -185,6 +212,11 @@ class UIScene extends Phaser.Scene {
       this.scene.run(target);
     }
     this.scene.bringToTop();
+  }
+
+  onUserUpdated(user) {
+    this.lastUser = user;
+    this.updateUser(user);
   }
 
   updateUser(user) {

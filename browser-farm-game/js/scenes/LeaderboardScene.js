@@ -16,9 +16,12 @@ class LeaderboardScene extends Phaser.Scene {
       this.game.events.emit("userUpdated", user);
     });
 
+    this.scale.on("resize", this.rebuild, this);
+
     this.events.on("shutdown", () => {
       if (this.unsubUser) this.unsubUser();
       this.input.removeListener("wheel", this.onWheel, this);
+      this.scale.off("resize", this.rebuild, this);
     });
     this.events.on("sleep", () => {
       this.input.removeListener("wheel", this.onWheel, this);
@@ -61,6 +64,7 @@ class LeaderboardScene extends Phaser.Scene {
   rebuild() {
     this.layer.removeAll(true);
     if (this.rowsContainer) { this.rowsContainer.destroy(); this.rowsContainer = null; }
+    if (this.maskGfx) { this.maskGfx.destroy(); this.maskGfx = null; }
 
     const W = this.scale.width;
     const cx = W / 2;
@@ -113,7 +117,7 @@ class LeaderboardScene extends Phaser.Scene {
 
     // Scrollable list
     this.viewY = 175;
-    this.viewH = 640 - this.viewY - 20;
+    this.viewH = Math.max(200, this.scale.height - this.viewY - 30);
 
     const rowH = 36;
     const rowGap = 4;
@@ -160,14 +164,14 @@ class LeaderboardScene extends Phaser.Scene {
     });
 
     // Mask — sadece view alanını göster
-    const mask = this.make.graphics({ x: 0, y: 0 }, false);
-    mask.fillStyle(0xffffff);
-    mask.fillRect(tableX - 4, this.viewY - 4, tableW + 8, this.viewH + 8);
-    this.rowsContainer.setMask(mask.createGeometryMask());
+    this.maskGfx = this.make.graphics({ x: 0, y: 0 }, false);
+    this.maskGfx.fillStyle(0xffffff);
+    this.maskGfx.fillRect(tableX - 4, this.viewY - 4, tableW + 8, this.viewH + 8);
+    this.rowsContainer.setMask(this.maskGfx.createGeometryMask());
 
     // Scroll ipucu
     if (this.contentH > this.viewH) {
-      const hint = this.add.text(cx, 620, "↕ tekerlek ile kaydır", {
+      const hint = this.add.text(cx, this.viewY + this.viewH + 12, "↕ tekerlek ile kaydır", {
         fontFamily: "Courier New, monospace", fontSize: "10px", color: "#8b7a5a"
       }).setOrigin(0.5);
       this.layer.add(hint);

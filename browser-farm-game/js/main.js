@@ -51,17 +51,21 @@
     const config = {
       type: Phaser.AUTO,
       parent: "game-root",
-      width: 960,
-      height: 640,
-      backgroundColor: "#2a1e14",
+      width: window.innerWidth,
+      height: window.innerHeight,
+      backgroundColor: "#1a0e06",
       pixelArt: true,
       scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.NO_CENTER
       },
       scene: [window.BootScene, window.FarmScene, window.MarketScene, window.InventoryScene, window.LeaderboardScene, window.UIScene]
     };
     const game = new Phaser.Game(config);
     window.ActionLock.setEmitter(game.events);
+
+    window.addEventListener("resize", () => {
+      game.scale.resize(window.innerWidth, window.innerHeight);
+    });
   }
 })();

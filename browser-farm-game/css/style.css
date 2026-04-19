@@ -16,6 +16,11 @@ canvas {
   display: block;
 }
 
+#game-root canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
 .hidden { display: none !important; }
 
 #auth-screen,
@@ -117,8 +122,8 @@ canvas {
 .card a { color: #ffd56b; }
 
 #game-root {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
   height: 100vh;
 }

@@ -24,7 +24,7 @@ class FarmScene extends Phaser.Scene {
     const oy = 140;
     this.gridOrigin = { x: ox, y: oy, size };
 
-    this.add.rectangle(ox + w / 2, oy + h / 2, w + 4, h + 4, 0x1a1109).setStrokeStyle(2, 0x8b5a2b);
+    this.gridFrame = this.add.rectangle(ox + w / 2, oy + h / 2, w + 4, h + 4, 0x1a1109).setStrokeStyle(2, 0x8b5a2b);
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
@@ -68,15 +68,43 @@ class FarmScene extends Phaser.Scene {
 
     this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
 
+    this.scale.on("resize", this.onResize, this);
+
     this.events.on("shutdown", () => {
       if (this.unsubFarm) this.unsubFarm();
       if (this.unsubUser) this.unsubUser();
+      this.scale.off("resize", this.onResize, this);
     });
 
     this.events.on("wake", () => {
       this.autoPickSeedIfNeeded();
       this.renderSeedPanel();
     });
+  }
+
+  onResize() {
+    const cols = window.GRID_COLS;
+    const rows = window.GRID_ROWS;
+    const size = window.TILE_PX;
+    const w = cols * size;
+    const h = rows * size;
+    const ox = (this.scale.width - w) / 2;
+    const oy = this.gridOrigin.y;
+    this.gridOrigin.x = ox;
+
+    if (this.gridFrame) this.gridFrame.setPosition(ox + w / 2, oy + h / 2);
+
+    for (const tId in this.tileSprites) {
+      const s = this.tileSprites[tId];
+      const x = ox + s.col * size + size / 2;
+      const y = oy + s.row * size + size / 2;
+      s.x = x;
+      s.y = y;
+      s.bg.setPosition(x, y);
+      s.crop.setPosition(x, y);
+    }
+
+    if (this.userData) this.renderSeedPanel();
   }
 
   autoPickSeedIfNeeded() {

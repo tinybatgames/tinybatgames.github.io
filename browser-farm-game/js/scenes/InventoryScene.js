@@ -16,8 +16,11 @@ class InventoryScene extends Phaser.Scene {
       this.rebuild();
     });
 
+    this.scale.on("resize", this.rebuild, this);
+
     this.events.on("shutdown", () => {
       if (this.unsubUser) this.unsubUser();
+      this.scale.off("resize", this.rebuild, this);
     });
 
     this.rebuild();
@@ -58,7 +61,7 @@ class InventoryScene extends Phaser.Scene {
     this.layer.add(cropTitle);
     this.drawInventorySlots(cx, 450, crops, "hasat");
 
-    const hint = this.add.text(cx, 555,
+    const hint = this.add.text(cx, this.scale.height - 30,
       "Tohum almak için Pazar > Tohum Mağazası • Hasat satmak için Pazar > Sat",
       { fontFamily: "Courier New, monospace", fontSize: "11px", color: "#8b7a5a" }
     ).setOrigin(0.5);
