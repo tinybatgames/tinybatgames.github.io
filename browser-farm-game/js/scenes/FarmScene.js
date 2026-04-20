@@ -18,8 +18,6 @@ class FarmScene extends Phaser.Scene {
     // Dörtgen alan seçerek ekme durumu
     this.rectSelect = null;
     this.rectSelectTiles = new Set();
-    this.plantQueue = [];
-    this.plantingNow = false;
 
     const cols = window.GRID_COLS;
     const rows = window.GRID_ROWS;
@@ -385,27 +383,7 @@ class FarmScene extends Phaser.Scene {
     }
   }
 
-  async processPlantQueue() {
-    if (this.plantingNow) return;
-    while (this.plantQueue.length > 0) {
-      const job = this.plantQueue.shift();
-      this.plantingNow = true;
-      this.plantingSeed = job.seed;
-      try {
-        await window.FarmDB.plantSeed(this.uid, job.tId, job.seed);
-      } catch (err) {
-        this.flashMessage(err.message);
-        this.plantQueue = [];
-        this.plantingNow = false;
-        this.plantingSeed = null;
-        return;
-      }
-      this.plantingNow = false;
-      this.plantingSeed = null;
-    }
-  }
-
-  commitRectSelect() {
+  async commitRectSelect() {
     if (!this.rectSelect) return;
     const { startRow, startCol, endRow, endCol } = this.rectSelect;
     const r1 = Math.min(startRow, endRow);
@@ -423,24 +401,25 @@ class FarmScene extends Phaser.Scene {
     this.rectOverlay.clear();
     this.rectSelect = null;
 
-    const seeds = this.userData?.inventory?.seeds || {};
     if (!this.selectedSeed) return;
-    const pending = this.plantQueue.filter(q => q.seed === this.selectedSeed).length
-      + (this.plantingNow && this.plantingSeed === this.selectedSeed ? 1 : 0);
-    let available = (seeds[this.selectedSeed] || 0) - pending;
-    if (available <= 0) return;
+    const seed = this.selectedSeed;
 
-    for (let r = r1; r <= r2 && available > 0; r++) {
-      for (let c = c1; c <= c2 && available > 0; c++) {
+    const candidates = [];
+    for (let r = r1; r <= r2; r++) {
+      for (let c = c1; c <= c2; c++) {
         const tId = `${r}_${c}`;
         const data = this.tiles[tId];
         if (data && data.crop) continue;
-        this.plantQueue.push({ tId, seed: this.selectedSeed });
-        available--;
+        candidates.push(tId);
       }
     }
+    if (candidates.length === 0) return;
 
-    this.processPlantQueue();
+    try {
+      await window.FarmDB.plantSeeds(this.uid, candidates, seed);
+    } catch (err) {
+      this.flashMessage(err.message);
+    }
   }
 
   openSeedPicker() {

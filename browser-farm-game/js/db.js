@@ -105,6 +105,45 @@
     });
   }
 
+  // Birden çok tile'a aynı tohumu tek transaction'da ek.
+  async function plantSeeds(uid, tIds, cropKey) {
+    const crop = window.CROPS[cropKey];
+    if (!crop) throw new Error("Geçersiz ekin.");
+    if (!tIds || tIds.length === 0) return 0;
+    let plantedCount = 0;
+    await db().runTransaction(async tx => {
+      const userSnap = await tx.get(userRef(uid));
+      const tileSnaps = await Promise.all(tIds.map(t => tx.get(tileRef(uid, t))));
+      const user = userSnap.data();
+      const seeds = { ...(user.inventory?.seeds || {}) };
+      let available = seeds[cropKey] || 0;
+      if (available <= 0) throw new Error("Tohum yok.");
+      const toWrite = [];
+      for (let i = 0; i < tIds.length; i++) {
+        if (available <= 0) break;
+        const tile = tileSnaps[i].data();
+        if (tile && tile.crop) continue;
+        toWrite.push(tIds[i]);
+        available--;
+      }
+      if (toWrite.length === 0) return;
+      seeds[cropKey] = available;
+      if (available === 0) delete seeds[cropKey];
+      tx.update(userRef(uid), { "inventory.seeds": seeds });
+      const plantedAtMs = Date.now();
+      const readyAtMs = plantedAtMs + crop.growSec * 1000;
+      for (const t of toWrite) {
+        tx.set(tileRef(uid, t), {
+          crop: cropKey,
+          plantedAt: firebase.firestore.Timestamp.fromMillis(plantedAtMs),
+          readyAt: firebase.firestore.Timestamp.fromMillis(readyAtMs)
+        });
+      }
+      plantedCount = toWrite.length;
+    });
+    return plantedCount;
+  }
+
   // Hazır ekini hasat et — exp kazandırır ve leaderboard'a yansıtır.
   async function harvestTile(uid, tId) {
     let expGain = 0;
@@ -227,7 +266,7 @@
   window.FarmDB = {
     initializeNewPlayer,
     listenToUser, listenToFarm, listenToMarket,
-    buySeed, plantSeed, harvestTile,
+    buySeed, plantSeed, plantSeeds, harvestTile,
     sellCropToMarket,
     createListing, buyListing, cancelListing,
     fetchLeaderboard,
