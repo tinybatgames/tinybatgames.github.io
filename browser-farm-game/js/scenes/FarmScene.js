@@ -297,7 +297,7 @@ class FarmScene extends Phaser.Scene {
     if (data && data.crop) {
       const readyMs = data.readyAt ? data.readyAt.toMillis() : 0;
       if (Date.now() >= readyMs) {
-        if (!window.ActionLock.tryStart()) return;
+        if (!window.ActionLock.tryStart(50)) return;
         try {
           const expGain = await window.FarmDB.harvestTile(this.uid, tId);
           this.showFloatingExp(tId, expGain);
