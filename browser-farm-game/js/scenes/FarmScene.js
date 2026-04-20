@@ -15,9 +15,9 @@ class FarmScene extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor("#2a1e14");
 
-    // Sürükleyerek ekme durumu
-    this.dragPlanting = false;
-    this.plantedDuringDrag = new Set();
+    // Dörtgen alan seçerek ekme durumu
+    this.rectSelect = null;
+    this.rectSelectTiles = new Set();
     this.plantQueue = [];
     this.plantingNow = false;
 
@@ -47,7 +47,11 @@ class FarmScene extends Phaser.Scene {
 
         bg.on("pointerover", (pointer) => {
           this.onHover(tId, true);
-          if (this.dragPlanting && pointer && pointer.isDown) this.queuePlant(tId);
+          if (this.rectSelect && pointer && pointer.isDown) {
+            this.rectSelect.endRow = r;
+            this.rectSelect.endCol = c;
+            this.updateRectSelectVisual();
+          }
         });
         bg.on("pointerout", () => this.onHover(tId, false));
         bg.on("pointerdown", () => this.onTileClick(tId));
@@ -55,6 +59,8 @@ class FarmScene extends Phaser.Scene {
         this.tileSprites[tId] = { bg, crop, row: r, col: c, x, y };
       }
     }
+
+    this.rectOverlay = this.add.graphics().setDepth(500);
 
     this.tooltip = this.add.text(0, 0, "", {
       fontFamily: "Courier New, monospace",
@@ -77,8 +83,8 @@ class FarmScene extends Phaser.Scene {
 
     this.time.addEvent({ delay: 1000, loop: true, callback: () => this.tick() });
 
-    this.input.on("pointerup", () => this.endDragPlant());
-    this.input.on("pointerupoutside", () => this.endDragPlant());
+    this.input.on("pointerup", () => this.commitRectSelect());
+    this.input.on("pointerupoutside", () => this.commitRectSelect());
 
     this.scale.on("resize", this.onResize, this);
 
@@ -255,12 +261,24 @@ class FarmScene extends Phaser.Scene {
       this.hoverTile = tId;
       this.updateTooltip(tId);
     } else {
-      sprite.bg.clearTint();
+      if (this.rectSelectTiles.has(tId)) {
+        this.applyRectTint(tId);
+      } else {
+        sprite.bg.clearTint();
+      }
       if (this.hoverTile === tId) {
         this.hoverTile = null;
         this.tooltip.setVisible(false);
       }
     }
+  }
+
+  applyRectTint(tId) {
+    const s = this.tileSprites[tId];
+    if (!s) return;
+    const data = this.tiles[tId];
+    const occupied = data && data.crop;
+    s.bg.setTint(occupied ? 0xff9a6b : 0xa8ff9a);
   }
 
   updateTooltip(tId) {
@@ -316,26 +334,55 @@ class FarmScene extends Phaser.Scene {
       return;
     }
 
-    this.dragPlanting = true;
-    this.plantedDuringDrag = new Set();
-    this.queuePlant(tId);
+    const sprite = this.tileSprites[tId];
+    this.rectSelect = {
+      startRow: sprite.row, startCol: sprite.col,
+      endRow: sprite.row, endCol: sprite.col
+    };
+    this.updateRectSelectVisual();
   }
 
-  queuePlant(tId) {
-    if (!this.dragPlanting) return;
-    if (this.plantedDuringDrag.has(tId)) return;
-    const data = this.tiles[tId];
-    if (data && data.crop) return;
-    const seeds = this.userData?.inventory?.seeds || {};
-    if (!this.selectedSeed) return;
-    const haveSeeds = (seeds[this.selectedSeed] || 0);
-    const pending = this.plantQueue.filter(q => q.seed === this.selectedSeed).length
-      + (this.plantingNow && this.plantingSeed === this.selectedSeed ? 1 : 0);
-    if (haveSeeds - pending <= 0) return;
+  updateRectSelectVisual() {
+    const oldSet = this.rectSelectTiles;
+    const newSet = new Set();
 
-    this.plantedDuringDrag.add(tId);
-    this.plantQueue.push({ tId, seed: this.selectedSeed });
-    this.processPlantQueue();
+    if (this.rectSelect) {
+      const { startRow, startCol, endRow, endCol } = this.rectSelect;
+      const r1 = Math.min(startRow, endRow);
+      const r2 = Math.max(startRow, endRow);
+      const c1 = Math.min(startCol, endCol);
+      const c2 = Math.max(startCol, endCol);
+      for (let r = r1; r <= r2; r++) {
+        for (let c = c1; c <= c2; c++) newSet.add(`${r}_${c}`);
+      }
+    }
+
+    for (const tId of oldSet) {
+      if (!newSet.has(tId) && this.hoverTile !== tId) {
+        const s = this.tileSprites[tId];
+        if (s) s.bg.clearTint();
+      }
+    }
+    for (const tId of newSet) {
+      if (this.hoverTile !== tId) this.applyRectTint(tId);
+    }
+    this.rectSelectTiles = newSet;
+
+    this.rectOverlay.clear();
+    if (this.rectSelect) {
+      const { startRow, startCol, endRow, endCol } = this.rectSelect;
+      const r1 = Math.min(startRow, endRow);
+      const r2 = Math.max(startRow, endRow);
+      const c1 = Math.min(startCol, endCol);
+      const c2 = Math.max(startCol, endCol);
+      const size = window.TILE_PX;
+      const x = this.gridOrigin.x + c1 * size;
+      const y = this.gridOrigin.y + r1 * size;
+      const w = (c2 - c1 + 1) * size;
+      const h = (r2 - r1 + 1) * size;
+      this.rectOverlay.lineStyle(2, 0xffd56b, 1);
+      this.rectOverlay.strokeRect(x, y, w, h);
+    }
   }
 
   async processPlantQueue() {
@@ -358,9 +405,42 @@ class FarmScene extends Phaser.Scene {
     }
   }
 
-  endDragPlant() {
-    this.dragPlanting = false;
-    this.plantedDuringDrag = new Set();
+  commitRectSelect() {
+    if (!this.rectSelect) return;
+    const { startRow, startCol, endRow, endCol } = this.rectSelect;
+    const r1 = Math.min(startRow, endRow);
+    const r2 = Math.max(startRow, endRow);
+    const c1 = Math.min(startCol, endCol);
+    const c2 = Math.max(startCol, endCol);
+
+    for (const tId of this.rectSelectTiles) {
+      if (this.hoverTile !== tId) {
+        const s = this.tileSprites[tId];
+        if (s) s.bg.clearTint();
+      }
+    }
+    this.rectSelectTiles = new Set();
+    this.rectOverlay.clear();
+    this.rectSelect = null;
+
+    const seeds = this.userData?.inventory?.seeds || {};
+    if (!this.selectedSeed) return;
+    const pending = this.plantQueue.filter(q => q.seed === this.selectedSeed).length
+      + (this.plantingNow && this.plantingSeed === this.selectedSeed ? 1 : 0);
+    let available = (seeds[this.selectedSeed] || 0) - pending;
+    if (available <= 0) return;
+
+    for (let r = r1; r <= r2 && available > 0; r++) {
+      for (let c = c1; c <= c2 && available > 0; c++) {
+        const tId = `${r}_${c}`;
+        const data = this.tiles[tId];
+        if (data && data.crop) continue;
+        this.plantQueue.push({ tId, seed: this.selectedSeed });
+        available--;
+      }
+    }
+
+    this.processPlantQueue();
   }
 
   openSeedPicker() {
