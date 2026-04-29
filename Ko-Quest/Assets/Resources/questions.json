@@ -1,0 +1,1404 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da hicbir hata yapmamaniza ragmen hapise neden dusersiniz?",
+      "options": ["Cok fazla PK yapmak", "Macro/3. parti program kullanmak", "Cok fazla olmek", "Oyunda AFK kalmak"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 2,
+      "category": "Siniflar",
+      "question": "Knight Online'da hangi sinif hem Heal hem Buff yapabilir?",
+      "options": ["Warrior", "Rogue", "Mage", "Priest"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 3,
+      "category": "Siniflar",
+      "question": "Rogue sinifinin iki alt dali nedir?",
+      "options": ["Fire ve Ice", "Archery ve Assassin", "Buffer ve Debuffer", "Attack ve Defense"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 4,
+      "category": "Haritalar",
+      "question": "Knight Online'da iki ana irk hangileridir?",
+      "options": ["Alliance ve Horde", "Karus ve El Morad", "Light ve Dark", "Human ve Orc"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 5,
+      "category": "NPC",
+      "question": "Moradon'da Chat gorevlerini baslatan ilk NPC kimdir?",
+      "options": ["[Blacksmith] Hepa", "[Sentinel] Patrick", "[Moradon Merchant] Shymer", "[Grand Merchant] Kaishan"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 6,
+      "category": "Siniflar",
+      "question": "Mage sinifinin uc element dali hangileridir?",
+      "options": ["Earth, Water, Wind", "Fire, Ice, Lightning", "Holy, Dark, Nature", "Arcane, Shadow, Frost"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 7,
+      "category": "Boss",
+      "question": "Eslant bolgesinde asagidaki bosslardan hangisi BULUNMAZ?",
+      "options": ["Dragon Tooth", "Harpy Queen", "Troll King", "Hyde"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 8,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da skill acmak icin minimum kac level olmalisiniz?",
+      "options": ["60", "65", "70", "75"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 9,
+      "category": "Siniflar",
+      "question": "Oyundaki en fazla defansa ve cana sahip sinif hangisidir?",
+      "options": ["Priest", "Rogue", "Warrior", "Mage"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 10,
+      "category": "Itemler",
+      "question": "Dark Knight Crossbow'un ozel yetenegi nedir?",
+      "options": ["%2 ihtimal ile ek hasar", "15 saniye zehir hasari", "%4 ihtimal ile 777 ek hasar ve dondurma", "Rakibi 5 saniye stun eder"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 11,
+      "category": "Haritalar",
+      "question": "Knight Online'da tarafsiz (neutral) sehir hangisidir?",
+      "options": ["Eslant", "Moradon", "Luferson Castle", "El Morad Castle"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 12,
+      "category": "Itemler",
+      "question": "'Claymore' kelimesinin anlami nedir?",
+      "options": ["Kisa bicak", "Zipkin", "Iki agizli buyuk kilic", "Yarimay seklinde silah"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 13,
+      "category": "Genel Bilgi",
+      "question": "Eslant Key gorevleri kacinci leveldan itibaren acilir?",
+      "options": ["50", "55", "60", "70"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 14,
+      "category": "NPC",
+      "question": "Moradon'da sizi Folk Village'a isinlayan NPC kimdir?",
+      "options": ["[Blacksmith] Hepa", "[Adviser of Magic Association] Markus", "[Mercenary Captain] Cougar", "[Sentinel] Patrick"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 15,
+      "category": "Siniflar",
+      "question": "INT Priest kendi icinde kac alt dala ayrilir?",
+      "options": ["2 (Heal ve Buff)", "3 (Buff, Heal ve Debuff)", "4 (Buff, Heal, Debuff ve Attack)", "1 (Sadece Heal)"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 16,
+      "category": "Boss",
+      "question": "Hyde bossi nerede bulunur?",
+      "options": ["Eslant", "Moradon", "El Morad ve Karus ana bolgeleri", "Bifrost"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 17,
+      "category": "Itemler",
+      "question": "'Rapier' ne tur bir silahtir?",
+      "options": ["Buyuk balta", "Ince kilic", "Arbalet", "Tirpan"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 18,
+      "category": "Itemler",
+      "question": "Dark Knight Dagger'in ozel yetenegi nedir?",
+      "options": ["Rakibi dondurur", "777 ek hasar verir", "Saldiri hasarina gore 15 saniye zehir hasari verir", "%10 kritik sansi verir"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 19,
+      "category": "NPC",
+      "question": "Moradon'da 'Trade Contract' itemini veren NPC kimdir?",
+      "options": ["[Moradon Merchant] Shymer", "[Grand Merchant] Kaishan", "[Entrep Trader] Berret", "[Blacksmith] Hepa"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 20,
+      "category": "Genel Bilgi",
+      "question": "Mage sinifi 70 skillini acmak icin kac adet Spell Stone Powder gerekir?",
+      "options": ["3", "5", "7", "10"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 21,
+      "category": "Boss",
+      "question": "Eslant bosslarinin respawn suresi yaklasik ne kadardir?",
+      "options": ["60-120 dakika", "180-240 dakika", "360-480 dakika", "720-960 dakika"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 22,
+      "category": "Itemler",
+      "question": "'Scythe' ne demektir?",
+      "options": ["Kilic", "Kalkan", "Tirpan", "Mizrak"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 23,
+      "category": "Siniflar",
+      "question": "Warrior sinifinin uc skill dali nedir?",
+      "options": ["Fire, Ice, Lightning", "Archery, Assassin, Tank", "Attack, Defense, Berserking", "Buff, Heal, Debuff"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 24,
+      "category": "Haritalar",
+      "question": "Chat gorevlerinin %90'i hangi bolgelerin merkezlerinde bulunur?",
+      "options": ["Eslant ve Bifrost", "Moradon, Folk Village, Luferson ve El Morad Castle", "Sadece Moradon", "Karus ve El Morad dis bolgeleri"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 25,
+      "category": "Itemler",
+      "question": "'Horn Crossbow' ne demektir?",
+      "options": ["Atesli arbalet", "Boynuzlu arbalet", "Buyulu yay", "Celik arbalet"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 26,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da toplam kac karakter sinifi vardir?",
+      "options": ["4", "5", "6", "8"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 27,
+      "category": "Itemler",
+      "question": "Asagidakilerden hangisi Knight Online'daki Unique silah setlerinden biri DEGILDIR?",
+      "options": ["Krowaz", "Rosetta", "Shenlong", "Excalibur"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 28,
+      "category": "Boss",
+      "question": "Eslant'ta bulunan asagidaki boss grubundan hangisi dogrudur?",
+      "options": ["Shaula, Dragon Tooth, Samma", "Hyde, Shaula, Bifrost Guardian", "Troll King, Deruvish, Moradon Guard", "Talos, Snake Queen, Dark Merchant"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 29,
+      "category": "Siniflar",
+      "question": "Priest sinifi temel olarak hangi iki stat turune ayrilir?",
+      "options": ["DEX ve INT", "STR ve INT", "STR ve DEX", "INT ve HP"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 30,
+      "category": "Itemler",
+      "question": "'Crescent' kelimesi ne anlama gelir?",
+      "options": ["Yildiz", "Yarimay", "Gunes", "Simsek"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 31,
+      "category": "Genel Bilgi",
+      "question": "Hapisten cikmak icin ne yapmaniz gerekir?",
+      "options": ["24 saat beklemek", "GM'ye ticket acmak", "Power Up Store'dan gerekli itemi almak", "Karakter silip yeniden olusturmak"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 32,
+      "category": "NPC",
+      "question": "Canyon Keeper Skar hangi koordinatlarda bulunur?",
+      "options": ["100, 200", "241, 325", "500, 150", "350, 400"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 33,
+      "category": "Itemler",
+      "question": "'Dagger' ne tur bir silahtir?",
+      "options": ["Buyuk kilic", "Ufak bicak/hancer", "Mizrak", "Cekic"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 34,
+      "category": "Itemler",
+      "question": "'Harpoon' kelimesi ne anlama gelir?",
+      "options": ["Kilic", "Balta", "Zipkin", "Yay"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 35,
+      "category": "Boss",
+      "question": "Hyde bossunun dusurdugu esya hangisidir?",
+      "options": ["Dragon Scale", "Sword of the Dead", "Holy Armor", "Krowaz Shield"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 36,
+      "category": "Siniflar",
+      "question": "Mage sinifi 80 skillini acmak icin kac Spell Stone Powder gerekir?",
+      "options": ["7", "10", "15", "20"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 37,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da Eslant bolgesindeki Sorcery gorevini veren NPC hangisidir?",
+      "options": ["Hepa", "Shymer", "Malraseu veya Pelor", "Captain Pasha"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 38,
+      "category": "NPC",
+      "question": "Karus haritasinda liman gorevlerini veren NPC kimdir?",
+      "options": ["Captain Redin", "Captain Pasha", "Admiral Karus", "Sentinel Patrick"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 39,
+      "category": "Itemler",
+      "question": "Asagidakilerden hangisi Dark Knight silah serisine AIT DEGILDIR?",
+      "options": ["Dark Knight Axe", "Dark Knight Crossbow", "Dark Knight Dagger", "Dark Knight Staff"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 40,
+      "category": "Genel Bilgi",
+      "question": "Unique silahlar normal High Class itemlere gore ne ozellige sahiptir?",
+      "options": ["Daha hafiftir", "Buffludur (ek bonus verir)", "Sadece gorsel farklidir", "Tamir edilemez"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 41,
+      "category": "Siniflar",
+      "question": "Warrior sinifinin 'Hash' skilli ne yapar?",
+      "options": ["Defansi arttirir", "Saldiriya 30 hasar ekler", "Rakibi stunlar", "HP yeniler"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 42,
+      "category": "Siniflar",
+      "question": "Warrior'un 'Shear' skilli ne kadar ek hasar verir?",
+      "options": ["30", "50", "80", "100"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 43,
+      "category": "Siniflar",
+      "question": "Warrior'un 'Leg Cutting' skilli ne ise yarar?",
+      "options": ["Ekstra hasar verir", "Rakibi yavaslatan saldiri yapar", "Defansi arttirir", "HP yeniler"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 44,
+      "category": "Siniflar",
+      "question": "Warrior'un 'Hellblade' skilli ne kadar ek hasar verir?",
+      "options": ["150", "200", "250", "350"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 45,
+      "category": "Siniflar",
+      "question": "Warrior'un 'Resist' skilli ne yapar?",
+      "options": ["Saldiri gucunu arttirir", "Tum direnc degerlerini 30 arttirir", "HP yeniler", "Rakibi stunlar"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 46,
+      "category": "Siniflar",
+      "question": "Warrior Master skilli 'Scream' ne yapar?",
+      "options": ["HP arttirir", "Defansi arttirir", "150 hasar verir ve stun etkisi birakir", "Tum partiye buff verir"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 47,
+      "category": "Siniflar",
+      "question": "Warrior Master skilli 'Boldness' ne zaman aktif olur?",
+      "options": ["Her zaman", "HP dusuk oldugunda", "Mana doldugunda", "Party icindeyken"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 48,
+      "category": "Siniflar",
+      "question": "Warrior'un 'Blooding' skilli ne kadar ekstra hasar verir?",
+      "options": ["50", "100", "150", "200"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 49,
+      "category": "Siniflar",
+      "question": "Mage'in level 80 Fire skilinin ozel ozelligi nedir?",
+      "options": ["Rakibi dondurur", "Damage over time (DoT) mermi atar", "Isinlanma saglar", "Tum partiye buff verir"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 50,
+      "category": "Siniflar",
+      "question": "Mage'in level 80 Ice skilinin ozel ozelligi nedir?",
+      "options": ["Buyuk alan hasari verir", "Rakibi 10 saniyeden fazla dondurur (ama invulnerable yapar)", "Isinlanma saglar", "Mana yeniler"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 51,
+      "category": "Siniflar",
+      "question": "Mage'in level 80 Lightning skilinin ozel ozelligi nedir?",
+      "options": ["Buyuk alan hasari verir", "Rakibi stunlar", "Kisa mesafe isinlanma (blink) saglar", "Rakibi zehirler"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 52,
+      "category": "Siniflar",
+      "question": "Rogue Archery dalinda 'Through Shot' ne kadar ok saldiri hasari verir?",
+      "options": ["100", "150", "200", "250"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 53,
+      "category": "Siniflar",
+      "question": "Rogue Archery dalinda 'Multiple Shot' kac ok atar?",
+      "options": ["2", "3", "4", "5"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 54,
+      "category": "Siniflar",
+      "question": "Rogue Assassin dalinda gorunmezlik (stealth) kac saniye surer?",
+      "options": ["30", "45", "60", "80"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 55,
+      "category": "Siniflar",
+      "question": "Rogue Assassin dalinda defans arttiran skill kac defans verir?",
+      "options": ["400", "600", "800", "1000"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 56,
+      "category": "Siniflar",
+      "question": "Priest'in 'Superior Healing' skilli ne kadar HP yeniler?",
+      "options": ["960", "1440", "1920", "2400"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 57,
+      "category": "Siniflar",
+      "question": "Priest'in 'Complete Healing' skilli kacinci levelde acilir?",
+      "options": ["45", "50", "54", "60"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 58,
+      "category": "Siniflar",
+      "question": "Priest'in 'Group Complete Healing' skilli kacinci levelde acilir?",
+      "options": ["54", "58", "60", "65"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 59,
+      "category": "Siniflar",
+      "question": "Priest Debuff skilleri rakibin HP ve defansini yuzde kac dusurur?",
+      "options": ["%10", "%20", "%30", "%50"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 60,
+      "category": "Siniflar",
+      "question": "Asagidakilerden hangisi Priest Debuff skillidir?",
+      "options": ["Hellblade", "Parasite", "Hash", "Through Shot"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 61,
+      "category": "Siniflar",
+      "question": "Priest'in en taninan buff skilli hangisidir?",
+      "options": ["Parasite", "Complete Healing", "Bless of God", "Torment"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 62,
+      "category": "Siniflar",
+      "question": "Kurian sinifi hangi iki sinifin melezi olarak tanimlanir?",
+      "options": ["Mage ve Rogue", "Warrior ve Priest", "Warrior ve Mage", "Rogue ve Priest"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 63,
+      "category": "Siniflar",
+      "question": "Kurian'in 'Devil' donusumunun bekleme suresi (cooldown) ne kadardir?",
+      "options": ["3 dakika", "5 dakika", "10 dakika", "15 dakika"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 64,
+      "category": "Siniflar",
+      "question": "Kurian'in level 80 master skilli 'Divide Armor' ne yapar?",
+      "options": ["HP yeniler", "Rakibin zirhini duser (debuff)", "Isinlanma saglar", "Buyuk alan hasari verir"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 65,
+      "category": "Siniflar",
+      "question": "Kurian'in kac adet skill dali vardir?",
+      "options": ["2", "3", "4", "5"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 66,
+      "category": "Siniflar",
+      "question": "Kurian'in Defense skill dali hangi siniftan kopyalanmistir?",
+      "options": ["Priest", "Mage", "Warrior", "Rogue"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 67,
+      "category": "Upgrade",
+      "question": "Knight Online'da item upgrade islemi nerede yapilir?",
+      "options": ["Sunderies NPC", "Magic Anvil (Moradon)", "Blacksmith NPC", "Power Up Store"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 68,
+      "category": "Upgrade",
+      "question": "Upgrade basarisiz olursa ne olur?",
+      "options": ["Item +0'a doner", "Item yok olur", "Hicbir sey olmaz", "Item -1 duser"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 69,
+      "category": "Upgrade",
+      "question": "Trina's Piece ne ise yarar?",
+      "options": ["Item onarir", "Upgrade basari oranini arttirir", "Yeni item uretir", "Item satar"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 70,
+      "category": "Upgrade",
+      "question": "Trina's Piece ozellikle kacinci upgrade seviyesinden sonra onerilir?",
+      "options": ["+3", "+4", "+6", "+8"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 71,
+      "category": "Upgrade",
+      "question": "Upgrade basari orani nasil hesaplanir?",
+      "options": ["Sabit oran", "1 ile 10000 arasinda rastgele hesaplama", "Karakterin levelina gore", "Oyun saatine gore"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 72,
+      "category": "Upgrade",
+      "question": "Item yakma yontemleri upgrade islemine etki eder mi?",
+      "options": ["Evet, buyuk etki eder", "Evet, kucuk etki eder", "Hayir, hicbir etkisi yoktur", "Sadece +7 uzerinde etkiler"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 73,
+      "category": "Genel Bilgi",
+      "question": "Nation Transfer Scroll nereden satin alinir?",
+      "options": ["Sunderies NPC", "Power Up Store (1600 cash)", "Moradon pazarindan", "Quest odul olarak"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 74,
+      "category": "Genel Bilgi",
+      "question": "Irk degistirmeden once ne yapmaniz GEREKMEZ?",
+      "options": ["Klandan ayrilmak", "Arkadas listesini silmek", "Gorevleri iptal etmek", "Tum itemleri satmak"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 75,
+      "category": "Genel Bilgi",
+      "question": "Nation Transfer yapildiginda kac karakter etkilenir?",
+      "options": ["Sadece 1", "2", "4", "Tum karakterler"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 76,
+      "category": "Genel Bilgi",
+      "question": "Nation Transfer Scroll aktive edildikten sonra kac gun icinde kullanilmalidir?",
+      "options": ["1 gun", "3 gun", "7 gun", "14 gun"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 77,
+      "category": "Haritalar",
+      "question": "Bifrost haritasina nasil erisilir?",
+      "options": ["Moradon'dan NPC ile", "Ronark Land'deki monument kirilarak", "Eslant'tan portal ile", "Power Up Store'dan bilet alarak"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 78,
+      "category": "Haritalar",
+      "question": "Bifrost monument'i hangi haritada bulunur?",
+      "options": ["Moradon", "Eslant", "Ronark Land (CZ)", "Luferson Castle"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 79,
+      "category": "Haritalar",
+      "question": "Bifrost haritasindaki yaratiklar neyi temsil eder?",
+      "options": ["Dort element", "Yedi olumcul gunah", "On iki burc", "Bes duyu"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 80,
+      "category": "Itemler",
+      "question": "Bifrost canavarlarindan ne tur malzeme duser?",
+      "options": ["Spell Stone Powder", "Dark Fragment taslari", "Upgrade Scroll", "Monster Stone"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 81,
+      "category": "Itemler",
+      "question": "Dark Fragment taslari nerede kirilir?",
+      "options": ["Magic Anvil", "Sunderies NPC", "Chaotic Generator (Moradon)", "Bifrost NPC"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 82,
+      "category": "Haritalar",
+      "question": "Monument'i kiran ulus ne avantaj kazanir?",
+      "options": ["Ekstra EXP bonus", "Bifrost'a giris hakki (rakip 30 dk giremez)", "Ekstra NP", "Ozel item drop"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 83,
+      "category": "Genel Bilgi",
+      "question": "Clan lideri klanini devretmek icin ne yapmalidir?",
+      "options": ["GM'ye basvurmak", "Asistan atayip o kisiye devretmek", "Klani dagitmak", "Oylama baslattirmak"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 84,
+      "category": "Haritalar",
+      "question": "Colony Zone (CZ) kac farkli bolgeye ayrilir?",
+      "options": ["2", "3", "4", "5"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 85,
+      "category": "Haritalar",
+      "question": "Colony Zone'un 3 bolgesi hangileridir?",
+      "options": ["Moradon, Eslant, Bifrost", "Ronark Land, Ronark Land Base, Ardream", "CZ1, CZ2, CZ3", "Bowl, Arena, Castle"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 86,
+      "category": "Haritalar",
+      "question": "Ronark Land (CZ) kac saat aciktir?",
+      "options": ["8 saat", "12 saat", "18 saat", "24 saat"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 87,
+      "category": "Etkinlikler",
+      "question": "Lunar War etkinligine her ulustan en fazla kac oyuncu katilabilir?",
+      "options": ["60", "80", "100", "120"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 88,
+      "category": "Etkinlikler",
+      "question": "Lunar War sirasinda hangi bolge kapali olur?",
+      "options": ["Moradon", "Eslant", "Ronark Land", "Bifrost"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 89,
+      "category": "Etkinlikler",
+      "question": "Lunar War sona erdiginde saldiran ulus nereye isinlanir?",
+      "options": ["Moradon", "Ana sehirlerine", "Ronark Land", "Eslant"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 90,
+      "category": "Stat",
+      "question": "Warrior sinifi icin ideal STR degeri kactir?",
+      "options": ["200", "225", "255", "300"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 91,
+      "category": "Stat",
+      "question": "Rogue sinifi icin ana stat hangisidir?",
+      "options": ["STR", "DEX", "INT", "HP"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 92,
+      "category": "Stat",
+      "question": "Rogue icin ideal DEX degeri kactir?",
+      "options": ["200", "225", "240", "255"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 93,
+      "category": "Stat",
+      "question": "Paper Mage (MP Mage) icin ana stat hangisidir?",
+      "options": ["INT", "STR", "MP", "DEX"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 94,
+      "category": "Stat",
+      "question": "INT Mage icin ideal INT degeri kactir?",
+      "options": ["120", "140", "160", "180"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 95,
+      "category": "Stat",
+      "question": "STR Priest paper set giyebilmek icin kac INT'e ihtiyac duyar?",
+      "options": ["50", "60", "78", "90"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 96,
+      "category": "Stat",
+      "question": "INT Priest icin ideal INT degeri kactir?",
+      "options": ["150", "168", "188", "200"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 97,
+      "category": "Stat",
+      "question": "DEX (Dexterity) stati ne ise yarar?",
+      "options": ["Saldiri gucu arttirir (tum siniflar)", "Kacinma sansi, isabet ve Rogue saldiri gucu", "Mana arttirir", "HP arttirir"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 98,
+      "category": "Stat",
+      "question": "HP stati 100 puandan sonra neyi etkiler?",
+      "options": ["Saldiri gucu", "Defans", "Direncler", "Mana"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 99,
+      "category": "Stat",
+      "question": "INT stati 100 puandan sonra her 2 puanda neyi arttirir?",
+      "options": ["Saldiri gucu 1", "Defans 1", "Tum direncler 1", "HP 1"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 100,
+      "category": "Stat",
+      "question": "Warrior ve Rogue'larin manasini hangi stat arttirir?",
+      "options": ["INT", "MP", "HP", "STR"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 101,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da maksimum level kactir?",
+      "options": ["80", "83", "85", "90"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 102,
+      "category": "Rebirth",
+      "question": "Rebirth sistemi kacinci levelde acilir?",
+      "options": ["80", "81", "83", "85"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 103,
+      "category": "Rebirth",
+      "question": "Rebirth sistemiyle en fazla kac ek level kazanilir?",
+      "options": ["5", "10", "15", "20"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 104,
+      "category": "Rebirth",
+      "question": "Her rebirth levelinda kac ek stat puani kazanilir?",
+      "options": ["1", "2", "3", "5"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 105,
+      "category": "Rebirth",
+      "question": "Rebirth icin gerekli NPC'nin adi nedir?",
+      "options": ["[Blacksmith] Hepa", "[Tarot Reader] Mekin", "[Soul Healer]", "[Grand Merchant] Kaishan"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 106,
+      "category": "Rebirth",
+      "question": "Rebirth 1-10 icin kac coin gerekir?",
+      "options": ["10 milyon", "50 milyon", "100 milyon", "500 milyon"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 107,
+      "category": "Rebirth",
+      "question": "Rebirth icin gereken 'Proof of Fame' kac NP'ye mal olur?",
+      "options": ["1.000 NP", "5.000 NP", "10.000 NP", "50.000 NP"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 108,
+      "category": "Rebirth",
+      "question": "Rebirth sonrasi gunluk gorevleri veren NPC nerededir?",
+      "options": ["Moradon", "Eslant", "Ronark Land", "El Morad Castle"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 109,
+      "category": "Rebirth",
+      "question": "Rebirth gunluk gorevi icin kac Spirit of Hero oldurmek gerekir?",
+      "options": ["1", "3", "5", "10"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 110,
+      "category": "Haritalar",
+      "question": "Oyuncular oyuna ilk basladiginda hangi bolgede baslar?",
+      "options": ["El Morad Castle", "Luferson Castle", "Moradon", "Eslant"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 111,
+      "category": "Haritalar",
+      "question": "Level 1-35 arasi icin ideal bolge hangisidir?",
+      "options": ["Moradon bolgesi", "Eslant", "Ronark Land", "Luferson Castle"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 112,
+      "category": "Haritalar",
+      "question": "Level 35-60 arasi icin hangi bolgeler uygundur?",
+      "options": ["Moradon", "El Morad Castle / Luferson Castle", "Eslant", "Ronark Land"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 113,
+      "category": "Haritalar",
+      "question": "Level 60-70 arasi icin hangi bolge idealdir?",
+      "options": ["Moradon", "Luferson Castle", "Eslant", "Ronark Land"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 114,
+      "category": "Haritalar",
+      "question": "Level 70-83 arasi icin hangi bolge idealdir?",
+      "options": ["Moradon", "Eslant", "Bifrost", "Ronark Land"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 115,
+      "category": "Haritalar",
+      "question": "Moradon bolgesinde hangi yaratiklar baslangic icin idealdir?",
+      "options": ["Titan, Dragon", "Shaula, Samma", "Keen, Bulcan, Goblin", "Harpy, Troll"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 116,
+      "category": "Haritalar",
+      "question": "Colony Zone haritasina kacinci leveldan itibaren girilebilir?",
+      "options": ["50", "60", "70", "75"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 117,
+      "category": "Ticaret",
+      "question": "Knight Online'da 'Buy Merchant' ne ise yarar?",
+      "options": ["Esya satmak", "Esya satin almak icin fiyat bicmek", "NPC'den esya almak", "Esya takas etmek"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 118,
+      "category": "Ticaret",
+      "question": "Knight Online'da 'Sell Merchant' ne ise yarar?",
+      "options": ["NPC'ye esya satmak", "Diger oyunculara esya satmak icin pazar kurmak", "Esya satin almak", "Esya cikarma"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 119,
+      "category": "Ticaret",
+      "question": "Knight Online'da oyun icin para biriminin adi nedir?",
+      "options": ["Gold", "Silver", "Noah", "Coin"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 120,
+      "category": "Ticaret",
+      "question": "Farm yaparak para kazanmak icin ne yapilir?",
+      "options": ["AFK kalmak", "Yaratiklardan dusen upgrade scroll ve monster stone biriktirmek", "GM'ye yazmak", "Quest yapmak"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 121,
+      "category": "Itemler",
+      "question": "Krowaz zirhlar kacinci level ve uzerinde giyilir?",
+      "options": ["65+", "70+", "75+", "80+"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 122,
+      "category": "Itemler",
+      "question": "Holy Knight zirhlar nasil elde edilir?",
+      "options": ["Boss'lardan duser", "Questaen odul olarak", "Uretim (manufacturing) ile", "Power Up Store'dan"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 123,
+      "category": "Itemler",
+      "question": "Krowaz ve Holy set birlikte giyildiginde ne bonus verir?",
+      "options": ["Saldiri bonusu", "DEX/STR set bonusu", "Mana bonusu", "EXP bonusu"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 124,
+      "category": "Itemler",
+      "question": "Rogue icin 3 parca Holy/Krowaz giyildiginde kac DEX set bonusu alinir?",
+      "options": ["5", "10", "15", "20"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 125,
+      "category": "Itemler",
+      "question": "Dark Knight Axe'in ozel yetenegi nedir?",
+      "options": ["%2 ihtimal ile ek hasar", "%4 ihtimal ile dondurma", "15 saniye zehir", "Rakibi geri iter"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 126,
+      "category": "Itemler",
+      "question": "Asagidakilerden hangisi Knight Online silah turudur?",
+      "options": ["Wand", "Chakram", "Glaive", "Hepsi"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 127,
+      "category": "Itemler",
+      "question": "'Sprint' kelimesi ne anlama gelir?",
+      "options": ["Yavas hareket", "Birden bire hizlanmak", "Sabit durmak", "Geri cekilmek"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 128,
+      "category": "Genel Bilgi",
+      "question": "Knight Online kac farkli irktan olusan iki ulusa sahiptir?",
+      "options": ["2", "4", "6", "8"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 129,
+      "category": "Siniflar",
+      "question": "Asagidakilerden hangisi Priest debuff skilli DEGILDIR?",
+      "options": ["Parasite", "Torment", "Malice", "Bless of God"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 130,
+      "category": "Siniflar",
+      "question": "Asagidakilerden hangisi Priest debuff skillidir?",
+      "options": ["Super Parasite", "Complete Healing", "Bless of God", "Group Healing"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 131,
+      "category": "Siniflar",
+      "question": "Mage sinifi hangi tur saldirilarla unludur?",
+      "options": ["Yakin dovus", "Tek hedef ve AOE (Alan hasari)", "Sadece tek hedef", "Sadece buff"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 132,
+      "category": "Siniflar",
+      "question": "Rogue Archery dalinda 'Fire Arrow' ne yapar?",
+      "options": ["Buz hasari verir", "Alevli ok ile hasar verir", "Normal ok atar", "Rakibi stunlar"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 133,
+      "category": "Siniflar",
+      "question": "Rogue Archery dalinda 'Poison Arrow' ne yapar?",
+      "options": ["Buz hasari verir", "Alevli ok atar", "Zehirli ok ile hasar verir", "Rakibi yavaslattir"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 134,
+      "category": "Siniflar",
+      "question": "Rogue Archery dalinda 'Guided Shot' ne yapar?",
+      "options": ["3 ok atar", "Mukemmel isabetli ok saldirisi yapar", "Rakibi stunlar", "Alan hasari verir"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 135,
+      "category": "Siniflar",
+      "question": "Kurian Devil donusumu ne zaman biter?",
+      "options": ["Sure dolunca", "Belirli bir hasar esigi asilinca", "Mana bitince", "Oyuncu istediginde"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 136,
+      "category": "Siniflar",
+      "question": "Kurian'in 'Divide Armor' skilli neyle birlikte stack olur?",
+      "options": ["Warrior debufflari", "Priest debufflari", "Mage debufflari", "Rogue debufflari"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 137,
+      "category": "Siniflar",
+      "question": "Kurian sinifi hangi tur yeteneklere sahiptir?",
+      "options": ["Sadece yakin dovus", "Yakin dovus, iyilestirme ve crowd control", "Sadece buyuler", "Sadece destek"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 138,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da parti kurmak icin max level farki kactir?",
+      "options": ["5 level", "8 level", "10 level", "15 level"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 139,
+      "category": "Genel Bilgi",
+      "question": "Level farki 8'den fazla olan oyuncularla parti kurmak icin ne gerekir?",
+      "options": ["GM izni", "Ayni klanda olmak", "Premium uyelik", "Mumkun degildir"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 140,
+      "category": "Genel Bilgi",
+      "question": "Partiden ayrilmak icin sohbet ekranina ne yazilir?",
+      "options": ["Leave Party", "Withdraw Party", "Exit Party", "Quit Party"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 141,
+      "category": "NPC",
+      "question": "[Grand Merchant's Daughter] Menissiah nerede bulunur?",
+      "options": ["Eslant", "Moradon", "El Morad Castle", "Luferson Castle"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 142,
+      "category": "NPC",
+      "question": "[Mercenary Captain] Cougar hangi bolgede bulunur?",
+      "options": ["Eslant", "Moradon", "Ronark Land", "Bifrost"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 143,
+      "category": "NPC",
+      "question": "[Entrep Trader] Berret ne tur bir NPC'dir?",
+      "options": ["Silahci", "Ticaret NPC'si", "Quest NPC'si", "Isinlanma NPC'si"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 144,
+      "category": "NPC",
+      "question": "El Morad haritasinda liman gorevlerini veren NPC kimdir?",
+      "options": ["Captain Pasha", "Captain Redin", "Admiral Morad", "Sentinel Patrick"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 145,
+      "category": "NPC",
+      "question": "Rebirth gunluk gorevlerini veren NPC'nin adi nedir?",
+      "options": ["[Tarot Reader] Mekin", "[Soul Healer]", "[Blacksmith] Hepa", "[Sentinel] Patrick"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 146,
+      "category": "Boss",
+      "question": "Asagidakilerden hangisi Eslant bossidir?",
+      "options": ["Hyde", "Snake Queen", "Moradon Guard", "Bifrost Keeper"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 147,
+      "category": "Boss",
+      "question": "Eslant'taki 'Talos' bossi ne tur bir yaratiktir?",
+      "options": ["Ejderha", "Dev", "Yilan", "Kartal"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 148,
+      "category": "Boss",
+      "question": "Eslant'taki 'Deruvish Founder' bir boss mudur?",
+      "options": ["Hayir, normal mob", "Evet, Eslant bossi", "Hayir, NPC", "Evet, ama sadece etkinlikte cikar"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 149,
+      "category": "Siniflar",
+      "question": "Warrior'un 'Gain' skilli neyi arttirir?",
+      "options": ["DEX degerini 15", "STR degerini 15", "INT degerini 15", "HP degerini 15"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 150,
+      "category": "Siniflar",
+      "question": "Warrior Master skilli 'Absoluteness' ne yapar?",
+      "options": ["Saldiri gucunu arttirir", "Alinan hasari azaltir", "HP yeniler", "Rakibi stunlar"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 151,
+      "category": "Siniflar",
+      "question": "Warrior Master skilli 'Matchless' ne yapar?",
+      "options": ["Saldiri gucunu arttirir", "Tum saldiri hasarini azaltir", "HP yeniler", "Hizi arttirir"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 152,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da Mage 72 skillini acmak icin kac Spell Stone Powder gerekir?",
+      "options": ["5", "7", "10", "12"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 153,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da Mage 75 skillini acmak icin kac Spell Stone Powder gerekir?",
+      "options": ["5", "7", "10", "15"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 154,
+      "category": "Itemler",
+      "question": "Asagidakilerden hangisi Legendary silah serisine aittir?",
+      "options": ["Legendary Sword", "Dark Knight Axe", "Krowaz Mace", "Holy Rapier"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 155,
+      "category": "Itemler",
+      "question": "Asagidakilerden hangisi bir silah serisi DEGILDIR?",
+      "options": ["Garges", "Bloody", "Shenlong", "Phantom"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 156,
+      "category": "Itemler",
+      "question": "+7 Holy Armor Set ile +7 Krowaz Set arasindaki fark nedir?",
+      "options": ["Fark yoktur", "50 DEF ve 5 HP bonus farki", "100 DEF farki", "Sadece gorsel fark"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 157,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da Auto Party sisteminde kac secenek vardir?",
+      "options": ["2", "3", "4", "5"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 158,
+      "category": "Genel Bilgi",
+      "question": "Auto Party secenekleri nelerdir?",
+      "options": ["Clan, Friend, Herkes", "Solo, Duo, Squad", "Normal, Hard, Expert", "Open, Closed, Private"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 159,
+      "category": "Haritalar",
+      "question": "Bifrost USKO sunucularinda hangi saatlerde acilir?",
+      "options": ["00:00, 08:00, 16:00", "02:00, 14:00, 21:00", "06:00, 12:00, 18:00", "03:00, 15:00, 23:00"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 160,
+      "category": "Haritalar",
+      "question": "Bifrost'a giris icin minimum level kactir?",
+      "options": ["60", "65", "70", "75"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 161,
+      "category": "Etkinlikler",
+      "question": "Lunar War sirasinda kac farkli harita kullanilir?",
+      "options": ["1", "2", "3", "4"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 162,
+      "category": "Etkinlikler",
+      "question": "Lunar War bittiginde PvP bolgeleri ne olur?",
+      "options": ["Kapali kalir", "Tekrar acilir", "Yeni harita eklenir", "Reset atilir"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 163,
+      "category": "Siniflar",
+      "question": "Priest'in 'Subside' skilli ne yapar?",
+      "options": ["HP yeniler", "Rakibin HP ve defansini dusurur", "Buff verir", "Mana yeniler"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 164,
+      "category": "Siniflar",
+      "question": "Priest'in 'Massive' skilli ne yapar?",
+      "options": ["HP yeniler", "Rakibin HP ve defansini dusurur", "Parti uyelerine buff verir", "Rakibi stunlar"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 165,
+      "category": "Siniflar",
+      "question": "Priest Aura (Buff) skill dalinin temel amaci nedir?",
+      "options": ["Rakibe hasar vermek", "Parti uyelerinin HP, defans ve direnclerini arttirmak", "Rakibi debuff etmek", "Mana yenilemek"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 166,
+      "category": "Siniflar",
+      "question": "Debuffer Priest ozellikle nerede cok onemlidir?",
+      "options": ["PvE farm", "Quest tamamlama", "Yuksek seviye PvP", "Baslangic bolgesi"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 167,
+      "category": "Genel Bilgi",
+      "question": "Knight Online Steam'de hangi yil yayinlandi?",
+      "options": ["2004", "2010", "2014", "2015"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 168,
+      "category": "Upgrade",
+      "question": "+1'den +2'ye upgrade genel olarak nasil degerlendirilir?",
+      "options": ["Cok zor", "Orta zorluk", "Neredeyse garantili", "Imkansiz"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 169,
+      "category": "Upgrade",
+      "question": "Upgrade scroll'u Magic Anvil'e koydugunuzda ne gorursunuz?",
+      "options": ["Hicbir sey", "Basari/basarisizlik oranlari ekranda belirir", "Sadece item ismi", "NPC konusur"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 170,
+      "category": "Upgrade",
+      "question": "%5 upgrade sansina sahip bir itemi 20 kere denerseniz basari garantili midir?",
+      "options": ["Evet, kesinlikle basarir", "Hayir, her deneme bagimsiz bir olasilik hesabidir", "Evet, 15. denemede garantilenir", "Evet, en gec 10. denemede basarir"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 171,
+      "category": "Siniflar",
+      "question": "Warrior icin STR stati kalan puanlar nereye basilir?",
+      "options": ["INT", "DEX", "HP", "MP"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 172,
+      "category": "Siniflar",
+      "question": "Chitin Rogue icin ideal HP degeri kactir?",
+      "options": ["80", "85", "90", "96"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 173,
+      "category": "Siniflar",
+      "question": "Chitin Shell Rogue icin ideal HP degeri kactir?",
+      "options": ["80", "85", "90", "96"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 174,
+      "category": "Siniflar",
+      "question": "Full Plate Rogue icin ideal HP degeri kactir?",
+      "options": ["80", "85", "90", "96"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 175,
+      "category": "Siniflar",
+      "question": "INT Priest icin ideal STR degeri kactir?",
+      "options": ["78", "98", "108", "128"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 176,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da 'NP' neyin kisaltmasidir?",
+      "options": ["Nation Points", "National Power", "New Points", "Noble Points"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 177,
+      "category": "Genel Bilgi",
+      "question": "NP (Nation Points) nasil kazanilir?",
+      "options": ["Quest yaparak", "Rakip oyunculari oldururek (PK)", "NPC'den satin alarak", "AFK kalarak"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 178,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da kac farkli sunucu tipi vardir (USKO ve STKO)?",
+      "options": ["1", "2", "3", "4"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 179,
+      "category": "Haritalar",
+      "question": "Ronark Land Bowl bolgesinde hangi guclü yaratiklar bulunur?",
+      "options": ["Goblin ve Keen", "Titan", "Dragon Tooth", "Hyde"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 180,
+      "category": "Boss",
+      "question": "Asagidakilerden hangisi Eslant bossi DEGILDIR?",
+      "options": ["Shaula", "Samma", "Titan", "Harpy Queen"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 181,
+      "category": "Itemler",
+      "question": "Monster Stone ne ise yarar?",
+      "options": ["Item upgrade eder", "Noah karsiliginda satilir / cesitli uretimlerde kullanilir", "Karakter isimlendirme", "Skill acma"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 182,
+      "category": "Itemler",
+      "question": "Upgrade Scroll ne ise yarar?",
+      "options": ["Karakter level atlatir", "Item'in + degerini arttirmak icin kullanilir", "Skill acma", "NPC'den esya almak"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 183,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da PK ne anlama gelir?",
+      "options": ["Player Kill (Oyuncu Oldurme)", "Point Keeper", "Power King", "Party Kick"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 184,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da GM ne anlama gelir?",
+      "options": ["Grand Master", "Game Manager", "Gold Maker", "General Member"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 185,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da PUS ne anlama gelir?",
+      "options": ["Player Upgrade System", "Power Up Store", "Premium User Service", "Point Usage System"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 186,
+      "category": "Siniflar",
+      "question": "Hangi sinif gorunmez olabilir (stealth)?",
+      "options": ["Warrior", "Mage", "Priest", "Rogue (Assassin)"],
+      "correctAnswer": 3
+    },
+    {
+      "id": 187,
+      "category": "Siniflar",
+      "question": "Hangi sinif olmus oyunculari diriltebilir (resurrect)?",
+      "options": ["Warrior", "Mage", "Priest", "Rogue"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 188,
+      "category": "Siniflar",
+      "question": "Hangi sinif isinlanma (blink/teleport) yapabilir?",
+      "options": ["Warrior", "Mage (Lightning)", "Priest", "Rogue"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 189,
+      "category": "Siniflar",
+      "question": "Rogue Assassin dalinda tek saldirida kac ekstra hasar verilebilir?",
+      "options": ["100", "150", "200", "250"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 190,
+      "category": "Itemler",
+      "question": "Asagidakilerden hangisi Shenlong silah serisine aittir?",
+      "options": ["Shenlong Sword", "Dark Shenlong", "Holy Shenlong", "Shenlong Shield"],
+      "correctAnswer": 0
+    },
+    {
+      "id": 191,
+      "category": "Itemler",
+      "question": "Bloody silah serisi hangi kategoride yer alir?",
+      "options": ["Normal silah", "Unique silah", "Quest odulu", "NPC silahi"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 192,
+      "category": "Itemler",
+      "question": "Garges Weapon serisi hangi kategoride yer alir?",
+      "options": ["Baslangic silahi", "Unique silah", "NPC silahi", "Event odulu"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 193,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da 'Descent' skilli hangi sinifa aittir?",
+      "options": ["Sadece Warrior", "Sadece Kurian", "Warrior ve Kurian", "Tum siniflar"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 194,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da kac farkli zirh tipi vardir (plate, chain vs)?",
+      "options": ["2", "3", "4", "5"],
+      "correctAnswer": 2
+    },
+    {
+      "id": 195,
+      "category": "NPC",
+      "question": "Knoker NPC hangi bolgede ve hangi koordinatlarda bulunur?",
+      "options": ["Moradon 500,300", "Kalluga Valley 1104,190", "Eslant 200,400", "El Morad 300,150"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 196,
+      "category": "NPC",
+      "question": "Gather NPC hangi bolgede bulunur?",
+      "options": ["Moradon", "Kalluga Valley", "Eslant", "Ronark Land"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 197,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da clan olusturmak icin ne gerekir?",
+      "options": ["Sadece level 10 olmak", "Belirli level ve NP gereksinimi", "GM izni", "Premium uyelik"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 198,
+      "category": "Etkinlikler",
+      "question": "Bifrost'ta elde edilen malzemelerle ne uretilebilir?",
+      "options": ["Normal silahlar", "Dark Knight zirh ve silahlari", "Upgrade Scroll", "Rebirth itemi"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 199,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da 'CZ' neyin kisaltmasidir?",
+      "options": ["Combat Zone", "Colony Zone", "Chaos Zone", "Central Zone"],
+      "correctAnswer": 1
+    },
+    {
+      "id": 200,
+      "category": "Genel Bilgi",
+      "question": "Knight Online'da 'AOE' ne anlama gelir?",
+      "options": ["Attack on Enemy", "Area of Effect (Alan Hasari)", "Armor of Elements", "All or Everything"],
+      "correctAnswer": 1
+    }
+  ]
+}

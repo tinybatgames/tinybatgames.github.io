@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Knight Online bilgi yarışması - Bildiğin sorularla skor topla!" />
+  <title>Knight Online Quiz</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="background-glow"></div>
+
+  <main class="app">
+    <!-- Başlangıç ekranı -->
+    <section id="start-screen" class="screen active">
+      <div class="card">
+        <div class="logo">
+          <span class="logo-icon">⚔️</span>
+        </div>
+        <h1>Knight Online Quiz</h1>
+        <p class="subtitle">Bilgini test et, skor topla!</p>
+
+        <div class="field">
+          <label for="category">Kategori</label>
+          <div class="select-wrapper">
+            <select id="category"></select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="question-count">Soru Sayısı</label>
+          <div class="count-buttons" id="count-buttons">
+            <button type="button" data-count="5">5</button>
+            <button type="button" data-count="10" class="active">10</button>
+            <button type="button" data-count="20">20</button>
+          </div>
+        </div>
+
+        <button id="start-btn" class="primary-btn">Başla</button>
+
+        <div class="best-score" id="best-score-row" hidden>
+          <span>🏆 En İyi Skor:</span>
+          <strong id="best-score-value">0</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz ekranı -->
+    <section id="quiz-screen" class="screen">
+      <header class="quiz-header">
+        <div class="hud">
+          <div class="hud-item">
+            <span class="hud-label">Soru</span>
+            <span class="hud-value"><span id="current-q">1</span>/<span id="total-q">10</span></span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Skor</span>
+            <span class="hud-value score" id="score-value">0</span>
+          </div>
+        </div>
+        <div class="progress">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </header>
+
+      <div class="card question-card">
+        <span class="category-pill" id="category-pill">Genel Bilgi</span>
+        <h2 class="question-text" id="question-text">Soru yükleniyor...</h2>
+        <div class="options" id="options"></div>
+        <button id="next-btn" class="primary-btn" hidden>Sonraki Soru →</button>
+      </div>
+    </section>
+
+    <!-- Sonuç ekranı -->
+    <section id="result-screen" class="screen">
+      <div class="card result-card">
+        <div class="trophy" id="trophy">🏆</div>
+        <h2 id="result-title">Tebrikler!</h2>
+        <p id="result-message" class="subtitle">Harika bir performans!</p>
+
+        <div class="result-stats">
+          <div class="stat">
+            <span class="stat-label">Skor</span>
+            <span class="stat-value" id="final-score">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Doğruluk</span>
+            <span class="stat-value" id="final-accuracy">0%</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">En İyi</span>
+            <span class="stat-value" id="final-best">0</span>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button id="play-again-btn" class="primary-btn">Tekrar Oyna</button>
+          <button id="home-btn" class="ghost-btn">Ana Menü</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Knight Online Quiz · 200 soru</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
