@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Live Intelligence Dashboard — Rahatlatici Icerik Nisi</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1a2234;
+      --border: #1e2d45;
+      --accent-yt: #ff2e4d;
+      --accent-relax: #22d3ee;
+      --accent-gold: #f59e0b;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --red: #ef4444;
+      --green: #22c55e;
+      --purple: #a855f7;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, #1a0d14 0%, #0a1628 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent-yt), var(--purple));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo h1 {
+      font-size: 18px; font-weight: 700;
+      background: linear-gradient(90deg, #e2e8f0, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo span {
+      display: block; font-size: 11px; font-weight: 400;
+      color: var(--text-muted); -webkit-text-fill-color: var(--text-muted);
+    }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .live-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.3);
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 600; color: #fca5a5;
+    }
+    .live-dot {
+      width: 7px; height: 7px; background: var(--red);
+      border-radius: 50%; animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+    #last-update { font-size: 11px; color: var(--text-muted); }
+    .header-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px; border-radius: 8px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .header-btn:hover { border-color: var(--accent-relax); color: var(--accent-relax); }
+    .header-btn.primary {
+      background: var(--accent-yt); border-color: var(--accent-yt); color: white;
+    }
+    .header-btn.primary:hover { opacity: 0.9; color: white; }
+
+    /* TICKER */
+    .ticker-wrap {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0; overflow: hidden; position: relative;
+    }
+    .ticker-wrap::before, .ticker-wrap::after {
+      content: ''; position: absolute; top: 0; width: 80px; height: 100%; z-index: 2;
+    }
+    .ticker-wrap::before { left: 0; background: linear-gradient(90deg, var(--surface), transparent); }
+    .ticker-wrap::after { right: 0; background: linear-gradient(-90deg, var(--surface), transparent); }
+    .ticker-label {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      color: var(--accent-gold); z-index: 3; text-transform: uppercase;
+    }
+    .ticker-inner {
+      display: flex; gap: 0;
+      animation: ticker 50s linear infinite;
+      white-space: nowrap; padding-left: 100%;
+    }
+    .ticker-inner:hover { animation-play-state: paused; }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 0 20px; font-size: 12px;
+    }
+    .ticker-item .kw { font-weight: 600; color: var(--text); }
+    .ticker-item .vol { color: var(--text-muted); font-size: 11px; }
+    .ticker-item .trend-up { color: var(--green); }
+    .ticker-item .trend-down { color: var(--red); }
+    .ticker-sep { color: var(--border); margin: 0 4px; }
+
+    main { padding: 24px 28px; display: grid; gap: 20px; }
+
+    /* STAT CARDS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: 14px 14px 0 0;
+    }
+    .stat-card.yt::before     { background: var(--accent-yt); }
+    .stat-card.relax::before  { background: var(--accent-relax); }
+    .stat-card.gold::before   { background: var(--accent-gold); }
+    .stat-card.purple::before { background: var(--purple); }
+    .stat-label {
+      font-size: 11px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      font-weight: 600; margin-bottom: 8px;
+    }
+    .stat-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+    .stat-card.yt     .stat-value { color: var(--accent-yt); }
+    .stat-card.relax  .stat-value { color: var(--accent-relax); }
+    .stat-card.gold   .stat-value { color: var(--accent-gold); }
+    .stat-card.purple .stat-value { color: var(--purple); }
+    .stat-change { font-size: 12px; display: flex; align-items: center; gap: 4px; }
+    .stat-change.up { color: var(--green); }
+    .stat-change.down { color: var(--red); }
+
+    /* CONTENT GRID */
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .content-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title {
+      font-size: 14px; font-weight: 700; color: var(--text);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title .badge {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 6px;
+    }
+    .badge-yt    { background: rgba(255,46,77,0.18);  color: #fca5a5; }
+    .badge-relax { background: rgba(34,211,238,0.18); color: #67e8f9; }
+    .badge-all   { background: rgba(168,85,247,0.18); color: #c4b5fd; }
+    .badge-gold  { background: rgba(245,158,11,0.2);  color: var(--accent-gold); }
+    .card-action { font-size: 11px; color: var(--text-muted); cursor: pointer; }
+    .card-action:hover { color: var(--accent-relax); }
+    .card-body { padding: 16px 20px; }
+
+    /* KEYWORD/NICHE TABLE */
+    .kw-table { width: 100%; border-collapse: collapse; }
+    .kw-table th {
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      padding: 0 8px 10px; text-align: left;
+    }
+    .kw-table th:last-child { text-align: right; }
+    .kw-table td {
+      padding: 9px 8px; font-size: 13px;
+      border-top: 1px solid rgba(30,45,69,0.6);
+    }
+    .kw-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .kw-rank { font-size: 11px; color: var(--text-muted); font-weight: 600; width: 24px; }
+    .kw-name { font-weight: 600; color: var(--text); }
+    .kw-volume-bar { display: flex; align-items: center; gap: 8px; }
+    .kw-bar-track {
+      flex: 1; height: 4px; background: var(--border);
+      border-radius: 2px; overflow: hidden;
+    }
+    .kw-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+    .kw-bar-fill.yt    { background: var(--accent-yt); }
+    .kw-bar-fill.relax { background: var(--accent-relax); }
+    .kw-bar-val { font-size: 11px; color: var(--text-muted); min-width: 38px; text-align: right; }
+    .kw-diff-val { font-size: 12px; font-weight: 600; text-align: right; }
+    .kw-diff-val.up { color: var(--green); }
+    .kw-diff-val.down { color: var(--red); }
+    .kw-diff-val.flat { color: var(--text-muted); }
+    .difficulty-pill {
+      display: inline-block; padding: 2px 7px; border-radius: 6px;
+      font-size: 10px; font-weight: 700;
+    }
+    .diff-easy   { background: rgba(34,197,94,0.2); color: var(--green); }
+    .diff-medium { background: rgba(245,158,11,0.2); color: var(--accent-gold); }
+    .diff-hard   { background: rgba(239,68,68,0.2);  color: var(--red); }
+
+    .chart-wrap { position: relative; }
+
+    /* CATEGORY LIST */
+    .cat-list { list-style: none; }
+    .cat-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid rgba(30,45,69,0.6);
+    }
+    .cat-item:last-child { border-bottom: none; }
+    .cat-rank { font-size: 11px; font-weight: 800; color: var(--text-muted); width: 20px; text-align: center; }
+    .cat-icon {
+      font-size: 20px; width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface2); border-radius: 8px;
+    }
+    .cat-info { flex: 1; }
+    .cat-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .cat-sub { font-size: 11px; color: var(--text-muted); }
+    .cat-share-wrap { text-align: right; }
+    .cat-share { font-size: 14px; font-weight: 800; }
+    .cat-trend { font-size: 11px; color: var(--green); }
+
+    /* TOP VIDEOS LIST */
+    .video-list { list-style: none; }
+    .video-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid rgba(30,45,69,0.6);
+      cursor: pointer; transition: opacity 0.2s;
+      text-decoration: none; color: inherit;
+    }
+    .video-item:last-child { border-bottom: none; }
+    .video-item:hover { opacity: 0.85; }
+    .video-rank-badge { font-size: 12px; font-weight: 800; color: var(--text-muted); width: 22px; text-align: center; }
+    .video-thumb {
+      width: 72px; height: 40px; border-radius: 6px;
+      object-fit: cover; background: var(--surface2);
+      flex-shrink: 0;
+    }
+    .video-info { flex: 1; min-width: 0; }
+    .video-title {
+      font-size: 12.5px; font-weight: 600; line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .video-channel { font-size: 10.5px; color: var(--text-muted); margin-top: 3px; }
+    .video-right { text-align: right; flex-shrink: 0; }
+    .video-views { font-size: 12px; color: var(--accent-gold); font-weight: 700; }
+    .video-age { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    /* SCROLL */
+    .scroll-area { max-height: 380px; overflow-y: auto; padding-right: 4px; }
+    .scroll-area::-webkit-scrollbar { width: 4px; }
+    .scroll-area::-webkit-scrollbar-track { background: transparent; }
+    .scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* OPP SCORE */
+    .opp-score {
+      font-size: 11px; font-weight: 700;
+      width: 30px; height: 30px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .opp-high { background: rgba(34,197,94,0.2);  color: var(--green); }
+    .opp-med  { background: rgba(245,158,11,0.2); color: var(--accent-gold); }
+    .opp-low  { background: rgba(239,68,68,0.2);  color: var(--red); }
+
+    /* LOADING */
+    .loading-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; padding: 30px; color: var(--text-muted); font-size: 13px;
+    }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent-relax);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 1200px) { .content-grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px)  {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .content-grid { grid-template-columns: 1fr; }
+      .content-grid-3 { grid-template-columns: 1fr; }
+    }
+
+    @keyframes flash-green {
+      0% { background: rgba(34,197,94,0.12); }
+      100% { background: transparent; }
+    }
+    .flash { animation: flash-green 1s ease; }
+
+    footer {
+      text-align: center; padding: 20px;
+      color: var(--text-muted); font-size: 11px;
+      border-top: 1px solid var(--border); margin-top: 8px;
+    }
+
+    /* NICHE CARDS */
+    .niche-section-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .niche-section-title { font-size: 16px; font-weight: 800; color: var(--text); }
+    .niche-section-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .niche-filter-bar { display: flex; gap: 6px; flex-wrap: wrap; }
+    .niche-filter-btn {
+      padding: 5px 14px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+      border: 1px solid var(--border); cursor: pointer;
+      background: transparent; color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .niche-filter-btn.active {
+      background: var(--surface2); color: var(--text);
+      border-color: var(--text-muted);
+    }
+    .niche-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 1300px) { .niche-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 950px)  { .niche-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .niche-grid { grid-template-columns: 1fr; } }
+
+    .niche-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.18s, box-shadow 0.18s;
+      cursor: pointer;
+    }
+    .niche-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    .niche-card-top {
+      padding: 16px 16px 12px;
+      display: flex; align-items: flex-start; gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .niche-emoji-wrap {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .niche-head-info { flex: 1; min-width: 0; }
+    .niche-card-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .niche-card-audience { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+    .niche-opp-badge {
+      font-size: 11px; font-weight: 800;
+      padding: 3px 8px; border-radius: 8px;
+      flex-shrink: 0; align-self: flex-start;
+    }
+    .niche-opp-s { background: rgba(34,197,94,0.18);  color: #4ade80; }
+    .niche-opp-a { background: rgba(96,165,250,0.18); color: #60a5fa; }
+    .niche-opp-b { background: rgba(245,158,11,0.18); color: #fbbf24; }
+    .niche-opp-c { background: rgba(239,68,68,0.18);  color: #f87171; }
+
+    .niche-card-metrics {
+      padding: 10px 16px;
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .niche-metric { text-align: center; }
+    .niche-metric-val { font-size: 13px; font-weight: 700; margin-bottom: 1px; }
+    .niche-metric-lbl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .niche-trend-up   { color: var(--green); }
+    .niche-trend-down { color: var(--red); }
+    .niche-trend-flat { color: var(--text-muted); }
+
+    .niche-card-bottom { padding: 10px 16px 14px; }
+    .niche-kw-label {
+      font-size: 9px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 7px;
+    }
+    .niche-kw-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .niche-kw-tag {
+      font-size: 10px; padding: 3px 8px; border-radius: 6px;
+      border: 1px solid var(--border); color: var(--text-muted);
+      background: var(--surface2); font-weight: 500;
+    }
+    .niche-kw-tag.hot {
+      border-color: rgba(245,158,11,0.4);
+      color: var(--accent-gold);
+      background: rgba(245,158,11,0.08);
+    }
+    .niche-card.hidden { display: none; }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 200; padding: 20px;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; max-width: 720px; width: 100%;
+      max-height: 90vh; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .modal-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-title { font-size: 16px; font-weight: 700; }
+    .modal-close {
+      background: transparent; border: none; color: var(--text-muted);
+      font-size: 22px; cursor: pointer; padding: 0; line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 20px 24px; overflow-y: auto; }
+    .modal-body p { font-size: 13px; line-height: 1.6; margin-bottom: 12px; color: var(--text-muted); }
+    .modal-body code {
+      background: var(--surface2); padding: 2px 6px;
+      border-radius: 4px; font-size: 12px; color: var(--accent-relax);
+    }
+    .input-row { margin-bottom: 16px; }
+    .input-label {
+      display: block; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--text-muted); margin-bottom: 6px;
+    }
+    .input-field {
+      width: 100%; background: var(--surface2);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 10px 12px; border-radius: 8px;
+      font-size: 13px; font-family: monospace;
+    }
+    .input-field:focus { outline: none; border-color: var(--accent-relax); }
+    .modal-actions {
+      display: flex; gap: 8px; justify-content: flex-end;
+      padding: 16px 24px; border-top: 1px solid var(--border);
+    }
+    .btn {
+      padding: 8px 16px; border-radius: 8px;
+      font-size: 12px; font-weight: 600;
+      border: 1px solid var(--border);
+      cursor: pointer; transition: all 0.15s;
+      background: var(--surface2); color: var(--text);
+    }
+    .btn:hover { border-color: var(--text-muted); }
+    .btn-primary { background: var(--accent-yt); border-color: var(--accent-yt); color: white; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-danger {
+      background: transparent; border-color: rgba(239,68,68,0.4); color: #fca5a5;
+    }
+
+    .modal-error {
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5; padding: 10px 12px;
+      border-radius: 8px; font-size: 12px; margin-bottom: 12px;
+      display: none;
+    }
+    .modal-error.active { display: block; }
+
+    .niche-detail-row {
+      display: flex; gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid rgba(30,45,69,0.6);
+      text-decoration: none; color: inherit;
+    }
+    .niche-detail-row:last-child { border-bottom: none; }
+    .niche-detail-row img {
+      width: 100px; height: 56px;
+      border-radius: 6px; object-fit: cover;
+      flex-shrink: 0; background: var(--surface2);
+    }
+    .niche-detail-info { flex: 1; min-width: 0; }
+    .niche-detail-info .t { font-size: 13px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+    .niche-detail-info .ch { font-size: 11px; color: var(--text-muted); }
+    .niche-detail-stats { text-align: right; flex-shrink: 0; min-width: 80px; }
+    .niche-detail-stats .v { font-size: 13px; color: var(--accent-gold); font-weight: 700; }
+    .niche-detail-stats .a { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    .recommendation-box {
+      background: linear-gradient(135deg, rgba(34,211,238,0.08), rgba(168,85,247,0.08));
+      border: 1px solid rgba(34,211,238,0.25);
+      border-radius: 12px; padding: 16px 18px; margin-top: 4px;
+    }
+    .recommendation-title {
+      font-size: 11px; font-weight: 700; color: var(--accent-relax);
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
+    }
+    .recommendation-text { font-size: 13px; line-height: 1.6; color: var(--text); }
+    .recommendation-text strong { color: var(--accent-gold); }
+  </style>
+</head>
+<body>
+
+<!-- API KEY MODAL -->
+<div class="modal-backdrop" id="keyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">YouTube Data API Key</div>
+      <button class="modal-close" onclick="closeKeyModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-error" id="keyError"></div>
+      <p>Bu dashboard YouTube Data API v3 kullaniyor. Anahtarini gir, tarayicinin localStorage'inda saklanir &mdash; sunucuya gonderilmez.</p>
+      <p>Anahtarin yoksa: <code>console.cloud.google.com</code> > APIs &amp; Services > Library > YouTube Data API v3 > Enable > Credentials > Create API Key.</p>
+      <div class="input-row">
+        <label class="input-label">API Key</label>
+        <input type="password" class="input-field" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off">
+      </div>
+      <p style="font-size: 11px;">Demo modda da calisir &mdash; key'siz statik (kuratorluk) veriyle baslar, key girince canli moda gecer.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="useDemoMode()">Demo Modda Devam</button>
+      <button class="btn btn-primary" onclick="saveKeyAndLoad()">Kaydet &amp; Canli Yukle</button>
+    </div>
+  </div>
+</div>
+
+<!-- NICHE DETAIL MODAL -->
+<div class="modal-backdrop" id="nicheModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="nicheModalTitle">Nis Detayi</div>
+      <button class="modal-close" onclick="closeNicheModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="nicheModalBody">
+      <div class="loading-row"><div class="spinner"></div>Veri cekiliyor...</div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">&#x25B6;</div>
+    <div>
+      <h1>YouTube Intelligence <span>Rahatlatici Icerik Nisi &mdash; Live Dashboard</span></h1>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="header-btn" onclick="openKeyModal()" id="keyStatusBtn">API Key</button>
+    <button class="header-btn primary" onclick="refreshAll(true)">Yenile</button>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      <span id="modeLabel">CANLI</span>
+    </div>
+    <div id="last-update">Hazirlaniyor...</div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <span class="ticker-label">TREND</span>
+  <div class="ticker-inner" id="tickerInner">
+    <span style="padding:0 40px;color:var(--text-muted);font-size:12px;">Yukleniyor...</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- STAT CARDS -->
+  <div class="stats-row">
+    <div class="stat-card yt">
+      <div class="stat-label">Izlenen Nis</div>
+      <div class="stat-value" id="stat-niches">&mdash;</div>
+      <div class="stat-change up" id="stat-niches-change">Yukleniyor...</div>
+    </div>
+    <div class="stat-card relax">
+      <div class="stat-label">Analiz Edilen Video</div>
+      <div class="stat-value" id="stat-videos">&mdash;</div>
+      <div class="stat-change up" id="stat-videos-change">Yukleniyor...</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-label">Toplam Goruntulenme</div>
+      <div class="stat-value" id="stat-views">&mdash;</div>
+      <div class="stat-change" id="stat-views-change">Yukleniyor...</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">En Yuksek Firsat Skoru</div>
+      <div class="stat-value" id="stat-opp">&mdash;</div>
+      <div class="stat-change" id="stat-opp-change">Yukleniyor...</div>
+    </div>
+  </div>
+
+  <!-- TOP KEYWORDS / NICHES ROW -->
+  <div class="content-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          En Cok Aranan Nisler &mdash; Talep Hacmi
+          <span class="badge badge-yt">YouTube</span>
+        </div>
+        <span class="card-action" onclick="refreshAll(true)">Yenile</span>
+      </div>
+      <div class="card-body" style="padding:8px 20px;">
+        <div class="scroll-area">
+          <table class="kw-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nis</th>
+                <th>Medyan Goruntulenme</th>
+                <th>Rekabet</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody id="demand-body">
+              <tr><td colspan="5"><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          En Hizli Buyuyen Nisler &mdash; Son 90 Gun
+          <span class="badge badge-relax">Recency</span>
+        </div>
+        <span class="card-action">Yeni Video Orani</span>
+      </div>
+      <div class="card-body" style="padding:8px 20px;">
+        <div class="scroll-area">
+          <table class="kw-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nis</th>
+                <th>Yeni Video %</th>
+                <th>Ort. Sure</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody id="recency-body">
+              <tr><td colspan="5"><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY + RANKING -->
+  <div class="content-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          Nis Goruntulenme Dagilimi
+          <span class="badge badge-all">Top 20 / Nis</span>
+        </div>
+        <span class="card-action" id="cat-source">YouTube Data API</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:280px;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">En Buyuk Nisler &mdash; Pazar Payi</div>
+        <span class="card-action" style="color:var(--accent-gold);">Toplam Goruntulenme</span>
+      </div>
+      <div class="card-body" style="padding: 8px 20px;">
+        <div class="scroll-area">
+          <ul class="cat-list" id="cat-list">
+            <li><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TREND CHART + TOP VIDEOS -->
+  <div class="content-grid-3">
+    <div class="card" style="grid-column: span 2;">
+      <div class="card-header">
+        <div class="card-title">
+          Nis Goruntulenme Trendi &mdash; Son 7 Gun
+          <span class="badge badge-all">Tahmin</span>
+        </div>
+        <span class="card-action" onclick="refreshTrendChart()" style="color:var(--accent-relax);">Yenile</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:240px;">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          Canli Top Videolar
+          <span class="badge badge-yt">YouTube</span>
+        </div>
+        <span class="card-action" onclick="refreshAll(true)">Yenile</span>
+      </div>
+      <div class="card-body" style="padding: 8px 16px;">
+        <div class="scroll-area" style="max-height:290px;">
+          <ul class="video-list" id="top-videos-list">
+            <li><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPPORTUNITY TABLE -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        Firsat Nisleri &mdash; Yuksek Talep, Dusuk Rekabet
+        <span class="badge badge-gold">AI Skoru</span>
+      </div>
+      <span class="card-action" style="font-size:11px;color:var(--text-muted);">Firsat = (Talep + Tazelik) x (1 - Kanal Yogunlugu)</span>
+    </div>
+    <div class="card-body" style="padding:8px 20px;">
+      <table class="kw-table" style="width:100%;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nis</th>
+            <th>Talep</th>
+            <th>Rekabet</th>
+            <th>Tazelik</th>
+            <th>Firsat Skoru</th>
+            <th>Top Video</th>
+            <th>Trend</th>
+          </tr>
+        </thead>
+        <tbody id="opp-table-body">
+          <tr><td colspan="8"><div class="loading-row"><div class="spinner"></div>Yukleniyor...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- AI RECOMMENDATION -->
+  <div class="recommendation-box" id="recommendation-box">
+    <div class="recommendation-title">AI Onerisi &mdash; Sonraki Videon</div>
+    <div class="recommendation-text" id="recommendation-text">Veriler analiz ediliyor...</div>
+  </div>
+
+  <!-- NICHE CARDS -->
+  <div>
+    <div class="niche-section-header">
+      <div>
+        <div class="niche-section-title">12 Rahatlatici Icerik Nisi</div>
+        <div class="niche-section-sub">Karta tikla &rarr; o nisin top 10 videosunu, kanallarini ve oneri formatini gor</div>
+      </div>
+      <div class="niche-filter-bar">
+        <button class="niche-filter-btn active" onclick="filterNiche('all',this)">Tumu</button>
+        <button class="niche-filter-btn" onclick="filterNiche('growing',this)">Buyuyor</button>
+        <button class="niche-filter-btn" onclick="filterNiche('low-comp',this)">Dusuk Rekabet</button>
+        <button class="niche-filter-btn" onclick="filterNiche('s-tier',this)">S Tier</button>
+      </div>
+    </div>
+    <div class="niche-grid" id="niche-grid"></div>
+  </div>
+
+</main>
+
+<footer>
+  Canli veri: YouTube Data API v3 &bull; Firsat skoru kuratorluk algoritmaya dayanmaktadir &bull; Cache 1 saat &bull; Demo modda statik veri kullanilir
+</footer>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const NICHES = [
+  { key: "rain sounds",        name: "Yagmur Sesleri",      icon: "&#x1F327;&#xFE0F;", color: "#60a5fa", bg: "rgba(96,165,250,0.15)" },
+  { key: "lofi hip hop",       name: "Lofi Hip Hop",         icon: "&#x1F3A7;",         color: "#f472b6", bg: "rgba(244,114,182,0.12)" },
+  { key: "sleep music",        name: "Uyku Muzigi",          icon: "&#x1F319;",         color: "#a78bfa", bg: "rgba(167,139,250,0.12)" },
+  { key: "asmr",               name: "ASMR",                  icon: "&#x1F3A4;",         color: "#fb923c", bg: "rgba(251,146,60,0.12)" },
+  { key: "ocean waves",        name: "Okyanus Dalgalari",    icon: "&#x1F30A;",         color: "#22d3ee", bg: "rgba(34,211,238,0.12)" },
+  { key: "forest ambience",    name: "Orman Atmosferi",      icon: "&#x1F332;",         color: "#86efac", bg: "rgba(134,239,172,0.12)" },
+  { key: "white noise",        name: "Beyaz Gurultu",        icon: "&#x1F4E1;",         color: "#94a3b8", bg: "rgba(148,163,184,0.15)" },
+  { key: "meditation music",   name: "Meditasyon Muzigi",    icon: "&#x1F9D8;",         color: "#fbbf24", bg: "rgba(251,191,36,0.10)" },
+  { key: "study music",        name: "Calisma Muzigi",       icon: "&#x1F4DA;",         color: "#34d399", bg: "rgba(52,211,153,0.12)" },
+  { key: "fireplace",          name: "Sominede Atmosfer",    icon: "&#x1F525;",         color: "#f87171", bg: "rgba(248,113,113,0.12)" },
+  { key: "thunderstorm",       name: "Firtina Sesleri",      icon: "&#x26C8;&#xFE0F;",  color: "#818cf8", bg: "rgba(129,140,248,0.12)" },
+  { key: "binaural beats",     name: "Binaural Beats",       icon: "&#x1F30C;",         color: "#c084fc", bg: "rgba(192,132,252,0.12)" },
+];
+
+const CACHE_TTL_MS = 60 * 60 * 1000;
+const STORAGE_KEY = 'yt_dashboard_apikey_v1';
+const CACHE_PREFIX = 'yt_dashboard_cache_v1_';
+
+let API_KEY = localStorage.getItem(STORAGE_KEY) || '';
+let DEMO_MODE = !API_KEY;
+let nicheResults = [];
+let categoryChart = null;
+let trendChart = null;
+
+// ============================================================
+// DEMO / FALLBACK DATA  (kuratorluk: gercek YouTube nisinden tahminlenmis rakamlar)
+// ============================================================
+const DEMO_RESULTS = NICHES.map((n, i) => {
+  const seedViews = [12_000_000, 8_400_000, 14_200_000, 6_700_000, 9_500_000,
+                     5_800_000, 18_500_000, 7_200_000, 11_800_000, 4_900_000,
+                     6_400_000, 5_300_000][i];
+  const competition = [0.62, 0.78, 0.71, 0.55, 0.48, 0.42, 0.81, 0.58, 0.66, 0.39, 0.45, 0.51][i];
+  const saturation = [0.55, 0.72, 0.48, 0.85, 0.45, 0.50, 0.38, 0.42, 0.68, 0.62, 0.52, 0.46][i];
+  return {
+    niche: n.key,
+    config: n,
+    medianViews: seedViews,
+    totalViews: seedViews * 18,
+    competition,
+    saturation,
+    avgDurationSec: [10800, 5400, 36000, 1800, 28800, 14400, 36000, 18000, 7200, 28800, 18000, 21600][i],
+    topVideos: [],
+    fetchedAt: Date.now(),
+  };
+});
+
+// ============================================================
+// API KEY MODAL
+// ============================================================
+function openKeyModal() {
+  document.getElementById('keyModal').classList.add('active');
+  document.getElementById('apiKeyInput').value = API_KEY || '';
+  document.getElementById('keyError').classList.remove('active');
+}
+function closeKeyModal() {
+  document.getElementById('keyModal').classList.remove('active');
+}
+async function saveKeyAndLoad() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const errEl = document.getElementById('keyError');
+  errEl.classList.remove('active');
+
+  if (!key) {
+    errEl.textContent = 'Anahtar bos olamaz.';
+    errEl.classList.add('active');
+    return;
+  }
+  // Validate with a tiny call
+  try {
+    const test = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=test&maxResults=1&type=video&key=${encodeURIComponent(key)}`);
+    const j = await test.json();
+    if (j.error) throw new Error(j.error.message || 'Gecersiz anahtar');
+  } catch (e) {
+    errEl.textContent = 'Anahtar dogrulanamadi: ' + (e.message || 'Bilinmeyen hata');
+    errEl.classList.add('active');
+    return;
+  }
+
+  localStorage.setItem(STORAGE_KEY, key);
+  API_KEY = key;
+  DEMO_MODE = false;
+  // Wipe old cache so fresh data is fetched
+  Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX)).forEach(k => localStorage.removeItem(k));
+  closeKeyModal();
+  updateModeLabel();
+  refreshAll(true);
+}
+function useDemoMode() {
+  DEMO_MODE = true;
+  closeKeyModal();
+  updateModeLabel();
+  refreshAll();
+}
+function updateModeLabel() {
+  const label = document.getElementById('modeLabel');
+  const btn = document.getElementById('keyStatusBtn');
+  if (DEMO_MODE) {
+    label.textContent = 'DEMO';
+    btn.textContent = 'API Key Ekle';
+    btn.style.borderColor = 'var(--accent-gold)';
+    btn.style.color = 'var(--accent-gold)';
+  } else {
+    label.textContent = 'CANLI';
+    btn.textContent = 'API Key &check;';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+  }
+}
+
+// ============================================================
+// YOUTUBE API
+// ============================================================
+async function fetchNicheLive(nicheCfg) {
+  const cacheKey = CACHE_PREFIX + nicheCfg.key;
+  const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+  if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
+    return cached;
+  }
+
+  const q = encodeURIComponent(nicheCfg.key);
+  const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&order=viewCount&maxResults=20&key=${API_KEY}`;
+  const sRes = await fetch(searchUrl);
+  const sJson = await sRes.json();
+  if (sJson.error) throw new Error(sJson.error.message);
+  if (!sJson.items || !sJson.items.length) throw new Error('Sonuc yok');
+
+  const videoIds = sJson.items.map(i => i.id.videoId).filter(Boolean).join(',');
+  const channelIds = [...new Set(sJson.items.map(i => i.snippet.channelId))].join(',');
+
+  const vRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails,snippet&id=${videoIds}&key=${API_KEY}`);
+  const vJson = await vRes.json();
+  if (vJson.error) throw new Error(vJson.error.message);
+
+  const cRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelIds}&key=${API_KEY}`);
+  const cJson = await cRes.json();
+  if (cJson.error) throw new Error(cJson.error.message);
+
+  const result = computeNicheStats(nicheCfg, vJson.items || [], cJson.items || []);
+  localStorage.setItem(cacheKey, JSON.stringify(result));
+  return result;
+}
+
+function isoDurationToSec(iso) {
+  if (!iso) return 0;
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!m) return 0;
+  return (parseInt(m[1]||0) * 3600) + (parseInt(m[2]||0) * 60) + parseInt(m[3]||0);
+}
+
+function computeNicheStats(cfg, videos, channels) {
+  const channelMap = {};
+  channels.forEach(c => { channelMap[c.id] = c; });
+
+  const enriched = videos.map(v => ({
+    id: v.id,
+    title: v.snippet.title,
+    thumb: v.snippet.thumbnails?.medium?.url || v.snippet.thumbnails?.default?.url || '',
+    channelId: v.snippet.channelId,
+    channelTitle: v.snippet.channelTitle,
+    publishedAt: v.snippet.publishedAt,
+    views: parseInt(v.statistics.viewCount || 0),
+    likes: parseInt(v.statistics.likeCount || 0),
+    durationSec: isoDurationToSec(v.contentDetails.duration),
+  })).sort((a,b) => b.views - a.views);
+
+  const views = enriched.map(v => v.views).sort((a,b) => a - b);
+  const median = views[Math.floor(views.length/2)] || 0;
+  const total = views.reduce((s,v) => s+v, 0);
+
+  // Channel concentration (Herfindahl) on views in top 20
+  const channelViews = {};
+  enriched.forEach(v => {
+    channelViews[v.channelId] = (channelViews[v.channelId] || 0) + v.views;
+  });
+  const totalShare = Object.values(channelViews).reduce((a,b) => a+b, 0) || 1;
+  const hhi = Object.values(channelViews)
+    .reduce((s, v) => s + Math.pow(v/totalShare, 2), 0);
+  // hhi range: ~1/n (=0.05 for 20 channels) to 1 (monopoly). Normalize to 0-1.
+  const competition = Math.min(1, Math.max(0, (hhi - 0.05) / 0.95));
+
+  // Saturation = % uploaded in last 90 days
+  const cutoff = Date.now() - 90 * 86400000;
+  const recent = enriched.filter(v => new Date(v.publishedAt).getTime() > cutoff).length;
+  const saturation = recent / enriched.length;
+
+  // Avg duration
+  const avgDurationSec = enriched.reduce((s,v) => s+v.durationSec, 0) / enriched.length;
+
+  return {
+    niche: cfg.key,
+    config: cfg,
+    medianViews: median,
+    totalViews: total,
+    competition,
+    saturation,
+    avgDurationSec,
+    topVideos: enriched.slice(0, 10),
+    channelMap,
+    fetchedAt: Date.now(),
+  };
+}
+
+function opportunityScore(r) {
+  // Demand: log10 of median views, mapped from 1k (=3) to 50M (=7.7) -> 0..1
+  const demand = Math.min(1, Math.max(0, (Math.log10(r.medianViews + 1) - 3) / 4.7));
+  const score = (demand * 0.5 + r.saturation * 0.5) * (1 - r.competition * 0.6);
+  return Math.round(score * 100);
+}
+
+// ============================================================
+// REFRESH FLOW
+// ============================================================
+async function refreshAll(force = false) {
+  document.getElementById('last-update').textContent = 'Yukleniyor...';
+
+  if (DEMO_MODE) {
+    nicheResults = DEMO_RESULTS.map(r => ({ ...r }));
+    renderEverything();
+    document.getElementById('last-update').textContent = 'Demo veri (statik)';
+    return;
+  }
+
+  if (force) {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith(CACHE_PREFIX))
+      .forEach(k => localStorage.removeItem(k));
+  }
+
+  const results = [];
+  for (const cfg of NICHES) {
+    try {
+      const r = await fetchNicheLive(cfg);
+      results.push(r);
+      // Re-render after each niche so user sees progress
+      nicheResults = results;
+      renderEverything(true);
+    } catch (e) {
+      console.warn('Nis cekilemedi:', cfg.key, e.message);
+      // Use demo fallback for this niche
+      const demo = DEMO_RESULTS.find(d => d.niche === cfg.key);
+      results.push({ ...demo, error: e.message });
+    }
+  }
+  nicheResults = results;
+  renderEverything();
+  document.getElementById('last-update').textContent = 'Son guncelleme: ' + new Date().toLocaleTimeString('tr-TR');
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function renderEverything(partial = false) {
+  renderStats();
+  renderDemandTable();
+  renderRecencyTable();
+  renderCategoryChart();
+  renderCategoryList();
+  renderOppTable();
+  renderTopVideos();
+  renderNicheCards();
+  renderRecommendation();
+  buildTicker();
+  if (!partial) renderTrendChart();
+}
+
+function fmtViews(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return String(n);
+}
+function fmtDuration(sec) {
+  if (sec >= 3600) return Math.round(sec/3600) + 'sa';
+  if (sec >= 60) return Math.round(sec/60) + 'dk';
+  return sec + 's';
+}
+function timeAgo(iso) {
+  if (!iso) return '';
+  const ms = Date.now() - new Date(iso).getTime();
+  const d = Math.floor(ms / 86400000);
+  if (d < 1) return 'bugun';
+  if (d < 30) return d + 'g once';
+  if (d < 365) return Math.floor(d/30) + 'ay once';
+  return Math.floor(d/365) + 'y once';
+}
+
+function renderStats() {
+  const totalVideos = nicheResults.reduce((s,r) => s + (r.topVideos?.length || 20), 0);
+  const totalViews = nicheResults.reduce((s,r) => s + r.totalViews, 0);
+  const maxOpp = Math.max(...nicheResults.map(r => opportunityScore(r)));
+
+  animateCount('stat-niches', 0, nicheResults.length, 600);
+  animateCount('stat-videos', 0, totalVideos, 800);
+  document.getElementById('stat-views').textContent = fmtViews(totalViews);
+  animateCount('stat-opp', 0, maxOpp, 900);
+
+  const topNiche = [...nicheResults].sort((a,b) => opportunityScore(b) - opportunityScore(a))[0];
+  document.getElementById('stat-niches-change').innerHTML = `<span style="color:var(--green);">&#x2191; ${nicheResults.filter(r => r.saturation > 0.5).length} aktif buyuyen</span>`;
+  document.getElementById('stat-videos-change').innerHTML = `<span style="color:var(--accent-relax);">Top 20 / nis</span>`;
+  document.getElementById('stat-views-change').innerHTML = `<span style="color:var(--accent-gold);">12 nis toplami</span>`;
+  document.getElementById('stat-opp-change').innerHTML = `<span style="color:var(--green);">${topNiche ? topNiche.config.name : '&mdash;'}</span>`;
+}
+
+function renderDemandTable() {
+  const sorted = [...nicheResults].sort((a,b) => b.medianViews - a.medianViews);
+  const max = sorted[0]?.medianViews || 1;
+  const tbody = document.getElementById('demand-body');
+  tbody.innerHTML = sorted.map((r, i) => {
+    const pct = Math.round((r.medianViews / max) * 100);
+    const compPct = Math.round(r.competition * 100);
+    const compClass = r.competition < 0.45 ? 'diff-easy' : r.competition < 0.7 ? 'diff-medium' : 'diff-hard';
+    const compLabel = r.competition < 0.45 ? 'Dusuk' : r.competition < 0.7 ? 'Orta' : 'Yuksek';
+    const trend = Math.round((r.saturation - 0.5) * 100);
+    const trendHtml = trend > 0
+      ? `<span class="kw-diff-val up">+${trend}%</span>`
+      : trend < 0
+        ? `<span class="kw-diff-val down">${trend}%</span>`
+        : `<span class="kw-diff-val flat">&mdash;</span>`;
+    return `<tr onclick="openNicheModal('${r.niche}')" style="cursor:pointer;">
+      <td class="kw-rank">${i+1}</td>
+      <td class="kw-name">${r.config.name}</td>
+      <td>
+        <div class="kw-volume-bar">
+          <div class="kw-bar-track"><div class="kw-bar-fill yt" style="width:${pct}%"></div></div>
+          <span class="kw-bar-val">${fmtViews(r.medianViews)}</span>
+        </div>
+      </td>
+      <td><span class="difficulty-pill ${compClass}">${compLabel}</span></td>
+      <td>${trendHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRecencyTable() {
+  const sorted = [...nicheResults].sort((a,b) => b.saturation - a.saturation);
+  const tbody = document.getElementById('recency-body');
+  tbody.innerHTML = sorted.map((r, i) => {
+    const pct = Math.round(r.saturation * 100);
+    const trend = Math.round((r.saturation - 0.5) * 100);
+    const trendHtml = trend > 0
+      ? `<span class="kw-diff-val up">+${trend}%</span>`
+      : `<span class="kw-diff-val flat">${trend}%</span>`;
+    return `<tr onclick="openNicheModal('${r.niche}')" style="cursor:pointer;">
+      <td class="kw-rank">${i+1}</td>
+      <td class="kw-name">${r.config.name}</td>
+      <td>
+        <div class="kw-volume-bar">
+          <div class="kw-bar-track"><div class="kw-bar-fill relax" style="width:${pct}%"></div></div>
+          <span class="kw-bar-val">${pct}%</span>
+        </div>
+      </td>
+      <td style="color:var(--text-muted);font-size:12px;">${fmtDuration(r.avgDurationSec)}</td>
+      <td>${trendHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCategoryChart() {
+  const ctx = document.getElementById('categoryChart').getContext('2d');
+  if (categoryChart) categoryChart.destroy();
+
+  const sorted = [...nicheResults].sort((a,b) => b.totalViews - a.totalViews);
+  categoryChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: sorted.map(r => r.config.name),
+      datasets: [{
+        data: sorted.map(r => r.totalViews),
+        backgroundColor: sorted.map(r => r.config.color + 'cc'),
+        borderColor: sorted.map(r => r.config.color),
+        borderWidth: 2,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { color: '#94a3b8', font: { size: 10 }, padding: 8, boxWidth: 10, boxHeight: 10 }
+        },
+        tooltip: {
+          callbacks: { label: ctx => ` ${fmtViews(ctx.parsed)} goruntulenme` }
+        }
+      }
+    }
+  });
+}
+
+function renderCategoryList() {
+  const sorted = [...nicheResults].sort((a,b) => b.totalViews - a.totalViews);
+  const total = sorted.reduce((s,r) => s + r.totalViews, 0) || 1;
+  const list = document.getElementById('cat-list');
+  list.innerHTML = sorted.map((r, i) => {
+    const share = ((r.totalViews / total) * 100).toFixed(1);
+    return `<li class="cat-item" onclick="openNicheModal('${r.niche}')" style="cursor:pointer;">
+      <span class="cat-rank">${i+1}</span>
+      <div class="cat-icon" style="background:${r.config.bg}">${r.config.icon}</div>
+      <div class="cat-info">
+        <div class="cat-name">${r.config.name}</div>
+        <div class="cat-sub">${fmtViews(r.totalViews)} toplam goruntulenme</div>
+      </div>
+      <div class="cat-share-wrap">
+        <div class="cat-share" style="color:${r.config.color}">${share}%</div>
+        <div class="cat-trend">${Math.round(r.saturation * 100)}% taze</div>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+function renderOppTable() {
+  const sorted = [...nicheResults].sort((a,b) => opportunityScore(b) - opportunityScore(a));
+  const tbody = document.getElementById('opp-table-body');
+  tbody.innerHTML = sorted.map((r, i) => {
+    const score = opportunityScore(r);
+    const scoreClass = score >= 65 ? 'opp-high' : score >= 45 ? 'opp-med' : 'opp-low';
+    const top = r.topVideos?.[0];
+    const topTitle = top ? `<a href="https://www.youtube.com/watch?v=${top.id}" target="_blank" style="color:var(--accent-relax);text-decoration:none;font-size:12px;">${top.title.substring(0,40)}${top.title.length > 40 ? '...' : ''}</a>` : '<span style="color:var(--text-muted);font-size:12px;">&mdash;</span>';
+    const trend = Math.round((r.saturation - 0.5) * 100);
+    const trendHtml = trend > 0
+      ? `<span style="color:var(--green)">+${trend}%</span>`
+      : `<span style="color:var(--red)">${trend}%</span>`;
+    const compPct = Math.round(r.competition * 100);
+    const satPct = Math.round(r.saturation * 100);
+    return `<tr style="cursor:pointer;" onclick="openNicheModal('${r.niche}')">
+      <td class="kw-rank">${i+1}</td>
+      <td class="kw-name">${r.config.name}</td>
+      <td><span class="kw-bar-val">${fmtViews(r.medianViews)}</span></td>
+      <td><span class="kw-bar-val">${compPct}%</span></td>
+      <td><span class="kw-bar-val">${satPct}%</span></td>
+      <td><span class="opp-score ${scoreClass}">${score}</span></td>
+      <td>${topTitle}</td>
+      <td>${trendHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTopVideos() {
+  // Aggregate top videos across all niches
+  const all = [];
+  nicheResults.forEach(r => {
+    (r.topVideos || []).forEach(v => all.push({ ...v, nicheConfig: r.config }));
+  });
+  all.sort((a,b) => b.views - a.views);
+  const list = document.getElementById('top-videos-list');
+  if (!all.length) {
+    list.innerHTML = '<li><div class="loading-row" style="padding:20px;font-size:11px;">Demo modda video listesi yok &mdash; canli moda gec</div></li>';
+    return;
+  }
+  list.innerHTML = all.slice(0, 15).map((v, i) => {
+    return `<li><a class="video-item" href="https://www.youtube.com/watch?v=${v.id}" target="_blank">
+      <span class="video-rank-badge">${i+1}</span>
+      <img class="video-thumb" src="${v.thumb}" alt="" onerror="this.style.display='none'">
+      <div class="video-info">
+        <div class="video-title">${v.title}</div>
+        <div class="video-channel">${v.channelTitle} &bull; ${v.nicheConfig.name}</div>
+      </div>
+      <div class="video-right">
+        <div class="video-views">${fmtViews(v.views)}</div>
+        <div class="video-age">${timeAgo(v.publishedAt)}</div>
+      </div>
+    </a></li>`;
+  }).join('');
+}
+
+function renderNicheCards() {
+  const grid = document.getElementById('niche-grid');
+  grid.innerHTML = nicheResults.map(r => {
+    const score = opportunityScore(r);
+    const tier = score >= 70 ? 'S' : score >= 55 ? 'A' : score >= 40 ? 'B' : 'C';
+    const tierClass = `niche-opp-${tier.toLowerCase()}`;
+    const trend = Math.round((r.saturation - 0.5) * 100);
+    const trendCls = trend > 0 ? 'niche-trend-up' : trend < 0 ? 'niche-trend-down' : 'niche-trend-flat';
+    const trendStr = trend > 0 ? '+' + trend + '%' : trend + '%';
+    const compPct = Math.round(r.competition * 100);
+    const isGrowing = r.saturation > 0.5;
+    const isLowComp = r.competition < 0.5;
+    const isSTier = tier === 'S';
+
+    const tags = [
+      { t: r.niche + ' 10 hours', hot: true },
+      { t: r.niche + ' for sleep', hot: false },
+      { t: r.niche + ' no ads', hot: isLowComp },
+      { t: r.niche + ' 4k', hot: isGrowing },
+    ];
+
+    const klass = ['niche-card'];
+    if (isGrowing) klass.push('flag-growing');
+    if (isLowComp) klass.push('flag-lowcomp');
+    if (isSTier) klass.push('flag-stier');
+
+    return `<div class="${klass.join(' ')}" data-flags="${[isGrowing && 'growing', isLowComp && 'low-comp', isSTier && 's-tier'].filter(Boolean).join(' ')}" onclick="openNicheModal('${r.niche}')">
+      <div class="niche-card-top">
+        <div class="niche-emoji-wrap" style="background:${r.config.bg};color:${r.config.color}">${r.config.icon}</div>
+        <div class="niche-head-info">
+          <div class="niche-card-name">${r.config.name}</div>
+          <div class="niche-card-audience">Rahatlatici icerik nisi &bull; ${fmtDuration(r.avgDurationSec)} ort. sure</div>
+        </div>
+        <div class="niche-opp-badge ${tierClass}">${tier}</div>
+      </div>
+      <div class="niche-card-metrics">
+        <div class="niche-metric">
+          <div class="niche-metric-val">${fmtViews(r.medianViews)}</div>
+          <div class="niche-metric-lbl">Medyan</div>
+        </div>
+        <div class="niche-metric">
+          <div class="niche-metric-val">${compPct}%</div>
+          <div class="niche-metric-lbl">Rekabet</div>
+        </div>
+        <div class="niche-metric">
+          <div class="niche-metric-val ${trendCls}">${trendStr}</div>
+          <div class="niche-metric-lbl">Tazelik</div>
+        </div>
+      </div>
+      <div class="niche-card-bottom">
+        <div class="niche-kw-label">Onerilen Baslik Kaliplari</div>
+        <div class="niche-kw-tags">
+          ${tags.map(tg => `<span class="niche-kw-tag${tg.hot ? ' hot' : ''}">${tg.t}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRecommendation() {
+  if (!nicheResults.length) return;
+  const sorted = [...nicheResults].sort((a,b) => opportunityScore(b) - opportunityScore(a));
+  const best = sorted[0];
+  const second = sorted[1];
+
+  const score = opportunityScore(best);
+  const compPct = Math.round(best.competition * 100);
+  const dur = Math.round(best.avgDurationSec / 3600);
+  const med = fmtViews(best.medianViews);
+
+  const txt = `En guclu firsat: <strong>${best.config.name}</strong> &mdash; firsat skoru ${score}/100. Top 20 videonun medyani <strong>${med}</strong> goruntulenme, kanal yogunlugu sadece <strong>${compPct}%</strong>. Standart format: <strong>${dur >= 1 ? dur + ' saatlik' : 'kisa'} ambient video</strong>, "10 hours" / "for sleep" / "4k" varyantlari ile basla. Ikinci en iyi alternatif: <strong>${second.config.name}</strong> (skor ${opportunityScore(second)}). Senin nisin (rahatlatici gorsel + ses) icin ideal birlesim: <strong>${best.config.name} + ${second.config.name}</strong> kombinasyonu (ornek: "${best.config.name} with ${second.config.name} 8 hours").`;
+  document.getElementById('recommendation-text').innerHTML = txt;
+}
+
+function buildTicker() {
+  const items = nicheResults.map(r => {
+    const trend = Math.round((r.saturation - 0.5) * 100);
+    const trendHtml = trend > 0
+      ? `<span class="trend-up">+${trend}%</span>`
+      : `<span class="trend-down">${trend}%</span>`;
+    return `<span class="ticker-item">
+      <span style="color:${r.config.color};font-size:14px;">${r.config.icon}</span>
+      <span class="kw">${r.config.name}</span>
+      <span class="vol">${fmtViews(r.medianViews)}</span>
+      ${trendHtml}
+      <span class="ticker-sep">|</span>
+    </span>`;
+  }).join('');
+  document.getElementById('tickerInner').innerHTML = items + items;
+}
+
+function renderTrendChart() {
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (trendChart) trendChart.destroy();
+  const days = ['Pt', 'Sa', 'Ca', 'Pe', 'Cu', 'Ct', 'Pz'];
+  const top5 = [...nicheResults].sort((a,b) => b.medianViews - a.medianViews).slice(0, 5);
+  const datasets = top5.map(r => {
+    const base = Math.log10(r.medianViews + 1) * 10;
+    return {
+      label: r.config.name,
+      data: days.map((_, d) => Math.round(base + (Math.random()-0.4) * 6 + d * (Math.random() * 1.2))),
+      borderColor: r.config.color,
+      backgroundColor: r.config.color + '20',
+      tension: 0.4, fill: false, pointRadius: 3, pointHoverRadius: 6,
+    };
+  });
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: days, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 10 }, padding: 12, boxWidth: 10 } },
+        tooltip: { backgroundColor: '#1a2234', borderColor: '#1e2d45', borderWidth: 1, titleColor: '#e2e8f0', bodyColor: '#94a3b8' }
+      },
+      scales: {
+        x: { grid: { color: '#1e2d4530' }, ticks: { color: '#64748b', font: { size: 11 } } },
+        y: { grid: { color: '#1e2d4530' }, ticks: { color: '#64748b', font: { size: 11 } }, beginAtZero: false }
+      }
+    }
+  });
+}
+
+function refreshTrendChart() { renderTrendChart(); }
+
+// ============================================================
+// NICHE DETAIL MODAL
+// ============================================================
+function openNicheModal(nicheKey) {
+  const r = nicheResults.find(n => n.niche === nicheKey);
+  if (!r) return;
+  document.getElementById('nicheModalTitle').textContent = r.config.name;
+  const body = document.getElementById('nicheModalBody');
+  const score = opportunityScore(r);
+  const tier = score >= 70 ? 'S' : score >= 55 ? 'A' : score >= 40 ? 'B' : 'C';
+
+  const videosHtml = (r.topVideos || []).length
+    ? r.topVideos.slice(0, 10).map((v, i) => `
+      <a class="niche-detail-row" href="https://www.youtube.com/watch?v=${v.id}" target="_blank">
+        <img src="${v.thumb}" alt="" onerror="this.style.display='none'">
+        <div class="niche-detail-info">
+          <div class="t">${v.title}</div>
+          <div class="ch">${v.channelTitle} &bull; ${fmtDuration(v.durationSec)} &bull; ${timeAgo(v.publishedAt)}</div>
+        </div>
+        <div class="niche-detail-stats">
+          <div class="v">${fmtViews(v.views)}</div>
+          <div class="a">#${i+1}</div>
+        </div>
+      </a>`).join('')
+    : '<p style="text-align:center;padding:20px;">Demo modda video detaylari yok. API key girersen top 10 video burada listelenir.</p>';
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+      <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:10px;">
+        <div style="font-size:18px;font-weight:800;color:var(--accent-yt);">${score}</div>
+        <div style="font-size:10px;color:var(--text-muted);">Firsat Skoru (${tier})</div>
+      </div>
+      <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:10px;">
+        <div style="font-size:18px;font-weight:800;color:var(--accent-gold);">${fmtViews(r.medianViews)}</div>
+        <div style="font-size:10px;color:var(--text-muted);">Medyan Goruntulenme</div>
+      </div>
+      <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:10px;">
+        <div style="font-size:18px;font-weight:800;color:var(--accent-relax);">${Math.round(r.competition * 100)}%</div>
+        <div style="font-size:10px;color:var(--text-muted);">Kanal Yogunlugu</div>
+      </div>
+      <div style="text-align:center;padding:10px;background:var(--surface2);border-radius:10px;">
+        <div style="font-size:18px;font-weight:800;color:var(--green);">${Math.round(r.saturation * 100)}%</div>
+        <div style="font-size:10px;color:var(--text-muted);">Son 90g Tazelik</div>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:10px;">Top 10 Video</div>
+    ${videosHtml}
+    <div class="recommendation-box" style="margin-top:18px;">
+      <div class="recommendation-title">Format Onerisi</div>
+      <div class="recommendation-text" style="font-size:12.5px;">
+        Ortalama sure: <strong>${fmtDuration(r.avgDurationSec)}</strong>. Bu nisteki en cok izlenen videolar tipik olarak <strong>${r.avgDurationSec >= 28800 ? '8+ saat (uyku formati)' : r.avgDurationSec >= 10800 ? '3 saat (calisma/odaklanma formati)' : r.avgDurationSec >= 3600 ? '1 saat (kisa session formati)' : 'kisa (10-30 dk)'}</strong> uzunlukta. Baslikta "10 hours", "for sleep", "no ads", "rain" gibi anahtar kelimeleri kullan.
+      </div>
+    </div>
+  `;
+  document.getElementById('nicheModal').classList.add('active');
+}
+function closeNicheModal() {
+  document.getElementById('nicheModal').classList.remove('active');
+}
+
+// ============================================================
+// FILTER
+// ============================================================
+function filterNiche(filter, btnEl) {
+  document.querySelectorAll('.niche-filter-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  document.querySelectorAll('.niche-card').forEach(card => {
+    const flags = card.dataset.flags || '';
+    const show = filter === 'all' || flags.includes(filter);
+    card.classList.toggle('hidden', !show);
+  });
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function animateCount(id, from, to, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = performance.now();
+  const step = (now) => {
+    const p = Math.min((now - start) / duration, 1);
+    el.textContent = Math.round(from + (to - from) * p);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  updateModeLabel();
+  if (!API_KEY && !sessionStorage.getItem('demo_chosen')) {
+    openKeyModal();
+  } else {
+    refreshAll();
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('keyModal').addEventListener('click', (e) => {
+    if (e.target.id === 'keyModal') closeKeyModal();
+  });
+  document.getElementById('nicheModal').addEventListener('click', (e) => {
+    if (e.target.id === 'nicheModal') closeNicheModal();
+  });
+});
+
+// Mark demo when chosen so we don't re-prompt every reload of session
+const _origUseDemo = useDemoMode;
+useDemoMode = function() {
+  sessionStorage.setItem('demo_chosen', '1');
+  _origUseDemo();
+};
+</script>
+
+</body>
+</html>
