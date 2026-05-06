@@ -1,54 +1,118 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="tr">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Pixel Farm</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes">
+    <title>Pixel Farm</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0a0a0a;
+        font-family: sans-serif;
+      }
+      #unity-container {
+        position: absolute;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #0a0a0a;
+      }
+      #unity-canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+        background: #0a0a0a;
+        outline: none;
+      }
+      #unity-loading-bar {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #d4d4d4;
+        z-index: 10;
+      }
+      #unity-progress-bar-empty {
+        width: 280px;
+        height: 18px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 12px auto 0;
+      }
+      #unity-progress-bar-full {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50, #8bc34a);
+        transition: width 0.15s ease-out;
+      }
+      #unity-fullscreen-button {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 18px;
+        z-index: 5;
+        transition: background 0.15s;
+      }
+      #unity-fullscreen-button:hover {
+        background: rgba(0, 0, 0, 0.8);
+      }
+      #unity-warning {
+        position: absolute;
+        left: 50%;
+        top: 5%;
+        transform: translateX(-50%);
+        background: #b71c1c;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 4px;
+        max-width: 80%;
+        z-index: 20;
+        display: none;
+      }
+    </style>
   </head>
   <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+    <div id="unity-container">
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
       <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
+        <div>Yükleniyor...</div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Pixel Farm</div>
-      </div>
+      <button id="unity-fullscreen-button" type="button" title="Tam Ekran (F)">⛶</button>
+      <div id="unity-warning"></div>
     </div>
     <script>
       var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var warningBanner = document.querySelector("#unity-warning");
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
       function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
+        warningBanner.innerText = msg;
+        warningBanner.style.display = "block";
+        warningBanner.style.background = type === "error" ? "#b71c1c" : "#f57f17";
+        if (type !== "error") setTimeout(function () { warningBanner.style.display = "none"; }, 5000);
       }
 
       var buildUrl = "Build";
@@ -62,72 +126,39 @@
         companyName: "TinyBatGames",
         productName: "Pixel Farm",
         productVersion: "1.0",
+        matchWebGLToCanvasSize: true,
+        devicePixelRatio: window.devicePixelRatio || 1,
         showBanner: unityShowBanner,
-        // errorHandler: function(err, url, line) {
-        //    alert("error " + err + " occurred at line " + line);
-        //    // Return 'true' if you handled this error and don't want Unity
-        //    // to process it further, 'false' otherwise.
-        //    return true;
-        // },
       };
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      // If you would like all file writes inside Unity Application.persistentDataPath
-      // directory to automatically persist so that the contents are remembered when
-      // the user revisits the site the next time, uncomment the following line:
-      // config.autoSyncPersistentDataPath = true;
-      // This autosyncing is currently not the default behavior to avoid regressing
-      // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
-      // expected to change.
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+      function resizeCanvas() {
+        // CSS canvas'ı viewport'a uyduruyor; render çözünürlüğünü de eşleştir.
+        var dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
       }
-
-      document.querySelector("#unity-loading-bar").style.display = "block";
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
 
       var script = document.createElement("script");
       script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-
-              }).catch((message) => {
-                alert(message);
-              });
-            };
-
+      script.onload = function () {
+        createUnityInstance(canvas, config, function (progress) {
+          progressBarFull.style.width = (100 * progress) + "%";
+        }).then(function (unityInstance) {
+          loadingBar.style.display = "none";
+          fullscreenButton.addEventListener("click", function () {
+            unityInstance.SetFullscreen(1);
+          });
+          // F tuşu ile tam ekran kısayolu
+          window.addEventListener("keydown", function (e) {
+            if (e.key === "f" || e.key === "F") unityInstance.SetFullscreen(1);
+          });
+        }).catch(function (message) {
+          unityShowBanner(message, "error");
+        });
+      };
       document.body.appendChild(script);
-
     </script>
   </body>
 </html>
