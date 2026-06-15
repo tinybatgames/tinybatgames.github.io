@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GA4 Multi-Project Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #1a1d24;
+      --border: #2a2e38;
+      --text: #e6e8ec;
+      --muted: #8a909c;
+      --accent: #4f8cff;
+      --ok: #3ecf8e;
+      --err: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+    .controls {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      margin-bottom: 20px;
+    }
+    select, button {
+      background: var(--card); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 12px; font-size: 14px;
+    }
+    button {
+      background: var(--accent); border-color: var(--accent);
+      color: #fff; cursor: pointer; font-weight: 600;
+    }
+    button:hover { opacity: 0.9; }
+    button.ghost { background: transparent; color: var(--muted); border-color: var(--border); font-weight: 400; }
+    .cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 20px; min-width: 160px;
+    }
+    .card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .card .value { font-size: 28px; font-weight: 700; margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge-err { color: var(--err); font-size: 12px; }
+    .status { color: var(--muted); font-size: 13px; margin: 12px 0; min-height: 18px; }
+    .meta { color: var(--muted); font-size: 12px; margin-top: 16px; }
+    .who { color: var(--muted); font-size: 13px; }
+    .signin-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      padding: 64px 16px; text-align: center;
+    }
+    .signin-wrap .lock { font-size: 40px; }
+    a { color: var(--accent); }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <h1>GA4 Multi-Project Dashboard</h1>
+  <div class="sub">Tüm Firebase/Unity projeleri tek görünümde · otomatik property keşfi</div>
+
+  <!-- Giriş ekranı -->
+  <div id="gate" class="signin-wrap">
+    <div class="lock">🔒</div>
+    <div>Bu paneli görmek için Google hesabınla giriş yap.</div>
+    <div id="gsi-button"></div>
+    <div class="status" id="gate-status"></div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="app" class="hidden">
+    <div class="controls">
+      <select id="range">
+        <option value="today">Bugün</option>
+        <option value="yesterday">Dün</option>
+        <option value="7daysAgo">Son 7 gün</option>
+        <option value="28daysAgo" selected>Son 28 gün</option>
+        <option value="90daysAgo">Son 90 gün</option>
+      </select>
+      <button id="load">Yenile</button>
+      <span class="who" id="who"></span>
+      <button id="logout" class="ghost" style="margin-left:auto">Çıkış</button>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="cards hidden" id="cards">
+      <div class="card"><div class="label">Toplam Aktif Kullanıcı</div><div class="value" id="t-users">0</div></div>
+      <div class="card"><div class="label">Toplam Oturum</div><div class="value" id="t-sessions">0</div></div>
+      <div class="card"><div class="label">Toplam Olay</div><div class="value" id="t-events">0</div></div>
+      <div class="card"><div class="label">Property Sayısı</div><div class="value" id="t-count">0</div></div>
+    </div>
+
+    <table id="table" class="hidden">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Hesap</th>
+          <th class="num">Aktif Kullanıcı</th>
+          <th class="num">Oturum</th>
+          <th class="num">Olay</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    // ====== AYAR: iki değeri kendine göre doldur ======
+    const API_BASE = 'https://ga4-dashboard-lime.vercel.app/api/analytics';
+    const GOOGLE_CLIENT_ID = '450661612153-ove6rgoiqb3ojgraiokd8jh8d4jiviso.apps.googleusercontent.com';
+    // ==================================================
+
+    const $ = (id) => document.getElementById(id);
+    const fmt = (n) => Number(n || 0).toLocaleString('tr-TR');
+    let idToken = null;
+
+    // ---- Google Sign-In ----
+    window.onload = function () {
+      if (GOOGLE_CLIENT_ID.includes('YOUR_CLIENT_ID')) {
+        $('gate-status').textContent = 'index.html içindeki GOOGLE_CLIENT_ID değerini doldur.';
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: onSignIn,
+        auto_select: true,
+      });
+      google.accounts.id.renderButton($('gsi-button'), {
+        theme: 'filled_blue', size: 'large', text: 'signin_with', shape: 'pill',
+      });
+      google.accounts.id.prompt(); // One Tap
+    };
+
+    function onSignIn(response) {
+      idToken = response.credential; // Google imzalı JWT (ID token)
+      $('gate').classList.add('hidden');
+      $('app').classList.remove('hidden');
+      // Token'dan e-postayı göster (sadece görsel; doğrulama backend'de).
+      try {
+        const payload = JSON.parse(atob(idToken.split('.')[1]));
+        $('who').textContent = payload.email || '';
+      } catch (e) {}
+      load();
+    }
+
+    function logout() {
+      idToken = null;
+      google.accounts.id.disableAutoSelect();
+      $('app').classList.add('hidden');
+      $('gate').classList.remove('hidden');
+      $('cards').classList.add('hidden');
+      $('table').classList.add('hidden');
+    }
+
+    // ---- Veri çekme ----
+    async function load() {
+      if (!idToken) { logout(); return; }
+      if (API_BASE.includes('YOUR-VERCEL-PROJECT')) {
+        setStatus('index.html içindeki API_BASE değerini doldur.', true);
+        return;
+      }
+
+      setStatus('Yükleniyor…');
+      $('load').disabled = true;
+
+      const url = new URL(API_BASE);
+      url.searchParams.set('startDate', $('range').value);
+      url.searchParams.set('endDate', 'today');
+
+      try {
+        const res = await fetch(url.toString(), {
+          headers: { 'Authorization': 'Bearer ' + idToken },
+        });
+        const data = await res.json();
+        if (res.status === 401) {
+          setStatus('Oturum süresi doldu, tekrar giriş yap.', true);
+          logout();
+          return;
+        }
+        if (res.status === 403) {
+          setStatus('Bu Google hesabının erişim izni yok.', true);
+          return;
+        }
+        if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+        render(data);
+        setStatus('');
+      } catch (e) {
+        setStatus('Hata: ' + e.message, true);
+        $('cards').classList.add('hidden');
+        $('table').classList.add('hidden');
+      } finally {
+        $('load').disabled = false;
+      }
+    }
+
+    function render(data) {
+      $('t-users').textContent = fmt(data.totals.activeUsers);
+      $('t-sessions').textContent = fmt(data.totals.sessions);
+      $('t-events').textContent = fmt(data.totals.eventCount);
+      $('t-count').textContent = fmt(data.propertyCount);
+      $('cards').classList.remove('hidden');
+
+      const rows = [...data.properties].sort((a, b) => (b.activeUsers || 0) - (a.activeUsers || 0));
+      $('tbody').innerHTML = rows.map((p) => {
+        if (!p.ok) {
+          return `<tr>
+            <td>${esc(p.displayName)}</td>
+            <td>${esc(p.account)}</td>
+            <td colspan="3" class="badge-err">Hata: ${esc(p.error || 'bilinmiyor')}</td>
+          </tr>`;
+        }
+        return `<tr>
+          <td>${esc(p.displayName)}</td>
+          <td>${esc(p.account)}</td>
+          <td class="num">${fmt(p.activeUsers)}</td>
+          <td class="num">${fmt(p.sessions)}</td>
+          <td class="num">${fmt(p.eventCount)}</td>
+        </tr>`;
+      }).join('');
+      $('table').classList.remove('hidden');
+
+      $('meta').textContent =
+        `Tarih aralığı: ${data.dateRange.startDate} → ${data.dateRange.endDate} · ` +
+        `Oluşturulma: ${new Date(data.generatedAt).toLocaleString('tr-TR')}`;
+    }
+
+    function setStatus(msg, isErr) {
+      const el = $('status');
+      el.textContent = msg;
+      el.style.color = isErr ? 'var(--err)' : 'var(--muted)';
+    }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
+    $('load').addEventListener('click', load);
+    $('logout').addEventListener('click', logout);
+  </script>
+</body>
+</html>
