@@ -3,83 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GA4 Multi-Project Dashboard</title>
+  <title>Tiny Bat Games · Analytics</title>
   <style>
     :root {
-      --bg: #0f1115;
-      --card: #1a1d24;
-      --border: #2a2e38;
-      --text: #e6e8ec;
-      --muted: #8a909c;
-      --accent: #4f8cff;
-      --ok: #3ecf8e;
-      --err: #ff6b6b;
+      --bg: #0a0c10; --bg2: #0f1218; --card: #14181f; --card2: #1a1f28;
+      --border: #232a35; --text: #eef1f6; --muted: #8b93a3; --faint: #5d6675;
+      --accent: #5b8cff; --green: #34d399; --amber: #fbbf24; --pink: #f472b6; --purple: #a78bfa;
     }
     * { box-sizing: border-box; }
+    html, body { margin: 0; }
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 24px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(1200px 600px at 80% -10%, #16203a 0%, var(--bg) 55%) fixed, var(--bg);
+      color: var(--text); padding: 28px 24px 64px; -webkit-font-smoothing: antialiased;
     }
-    h1 { font-size: 20px; margin: 0 0 4px; }
-    .sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
-    .controls {
-      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
-      margin-bottom: 20px;
-    }
+    .wrap { max-width: 1080px; margin: 0 auto; }
+    .topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; flex-wrap: wrap; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand .dot { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), var(--purple)); }
+    .brand h1 { font-size: 17px; font-weight: 700; margin: 0; letter-spacing: -.01em; }
+    .brand .sub { font-size: 12px; color: var(--faint); }
+    .spacer { flex: 1; }
     select, button {
-      background: var(--card); color: var(--text);
-      border: 1px solid var(--border); border-radius: 8px;
-      padding: 8px 12px; font-size: 14px;
+      background: var(--card); color: var(--text); border: 1px solid var(--border);
+      border-radius: 10px; padding: 9px 13px; font-size: 13px; font-family: inherit;
     }
-    button {
-      background: var(--accent); border-color: var(--accent);
-      color: #fff; cursor: pointer; font-weight: 600;
-    }
-    button:hover { opacity: 0.9; }
-    button.ghost { background: transparent; color: var(--muted); border-color: var(--border); font-weight: 400; }
-    .cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 16px 20px; min-width: 160px;
-    }
-    .card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
-    .card .value { font-size: 28px; font-weight: 700; margin-top: 6px; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+    button { cursor: pointer; transition: .15s; }
+    button:hover { background: var(--card2); }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    button.primary:hover { filter: brightness(1.08); }
+    .who { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+    .who .av { width: 24px; height: 24px; border-radius: 50%; background: var(--card2); border: 1px solid var(--border); display: grid; place-items: center; font-size: 11px; font-weight: 600; }
+
+    .hero { background: linear-gradient(135deg, #131a2e 0%, var(--card) 60%); border: 1px solid var(--border); border-radius: 20px; padding: 26px 28px; margin-bottom: 18px; position: relative; overflow: hidden; }
+    .hero .glow { position: absolute; right: -60px; top: -60px; width: 240px; height: 240px; background: radial-gradient(circle, rgba(91,140,255,.25), transparent 70%); }
+    .hero .label { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .hero .target { font-size: 44px; font-weight: 800; letter-spacing: -.02em; margin: 6px 0 2px; background: linear-gradient(90deg, #fff, #9fb4ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero .target small { font-size: 16px; font-weight: 600; color: var(--muted); -webkit-text-fill-color: var(--muted); }
+    .bar { height: 14px; border-radius: 999px; background: #0c0f15; border: 1px solid var(--border); overflow: hidden; margin: 16px 0 10px; }
+    .bar > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--green), var(--accent)); transition: width 1s ease; }
+    .hero .legend { display: flex; justify-content: space-between; font-size: 13px; }
+    .hero .earned { font-weight: 700; color: var(--green); }
+    .hero .pct { color: var(--muted); }
+
+    .grid { display: grid; gap: 14px; }
+    .row-live { grid-template-columns: 1.1fr 2fr; margin-bottom: 14px; }
+    .live { background: linear-gradient(135deg, #10231b, var(--card)); border: 1px solid #1d3b30; border-radius: 18px; padding: 22px 24px; display: flex; flex-direction: column; justify-content: center; }
+    .live .top { display: flex; align-items: center; gap: 9px; font-size: 12px; color: #7fe7c4; text-transform: uppercase; letter-spacing: .08em; }
+    .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(52,211,153,.7); animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,211,153,.6); } 70% { box-shadow: 0 0 0 12px rgba(52,211,153,0); } 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); } }
+    .live .big { font-size: 52px; font-weight: 800; line-height: 1.05; margin: 8px 0 2px; }
+    .live .cap { font-size: 13px; color: var(--muted); }
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; }
+    .stat .k { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    .stat .ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-size: 14px; }
+    .stat .v { font-size: 26px; font-weight: 750; margin-top: 8px; letter-spacing: -.01em; }
+    .stat .vsub { font-size: 12px; color: var(--faint); margin-top: 2px; }
+    .panels { grid-template-columns: 1fr 1.4fr; margin-top: 14px; align-items: start; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; }
+    .panel h3 { font-size: 13px; font-weight: 600; color: var(--muted); margin: 0 0 14px; text-transform: uppercase; letter-spacing: .06em; }
+    .country { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 14px; }
+    .country .flag { font-size: 18px; width: 22px; text-align: center; }
+    .country .nm { width: 110px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .country .cbar { flex: 1; height: 8px; border-radius: 999px; background: #0c0f15; overflow: hidden; }
+    .country .cbar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--purple), var(--accent)); border-radius: 999px; }
+    .country .cn { width: 56px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { color: var(--faint); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
     td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-    tr:hover td { background: rgba(255,255,255,0.02); }
-    .badge-err { color: var(--err); font-size: 12px; }
-    .status { color: var(--muted); font-size: 13px; margin: 12px 0; min-height: 18px; }
-    .meta { color: var(--muted); font-size: 12px; margin-top: 16px; }
-    .who { color: var(--muted); font-size: 13px; }
-    .signin-wrap {
-      display: flex; flex-direction: column; align-items: center; gap: 16px;
-      padding: 64px 16px; text-align: center;
-    }
-    .signin-wrap .lock { font-size: 40px; }
-    a { color: var(--accent); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(255,255,255,.02); }
+    .game { font-weight: 600; }
+    .livecell { color: var(--green); font-weight: 700; }
+    .zero { color: var(--faint); }
+    .badge-err { color: #f87171; font-size: 12px; }
+    .status { font-size: 13px; color: var(--muted); margin: 14px 2px; min-height: 18px; }
+    .meta { color: var(--faint); font-size: 12px; margin-top: 18px; text-align: center; }
     .hidden { display: none !important; }
+    .gate { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 90px 16px; text-align: center; }
+    .gate .lock { width: 64px; height: 64px; border-radius: 18px; background: var(--card); border: 1px solid var(--border); display: grid; place-items: center; font-size: 28px; }
+    .gate h2 { margin: 0; font-size: 20px; }
+    .gate p { margin: 0; color: var(--muted); font-size: 14px; }
+    .gbtn { display: inline-flex; align-items: center; gap: 10px; background: #fff; color: #1f1f1f; border: none; border-radius: 10px; padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .gbtn:hover { background: #f1f1f1; }
+    .gbtn img { width: 18px; height: 18px; }
+    @media (max-width: 760px) { .row-live, .stats, .panels { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
 <body>
-  <h1>GA4 Multi-Project Dashboard</h1>
-  <div class="sub">Tüm Firebase/Unity projeleri tek görünümde · otomatik property keşfi</div>
+<div class="wrap">
 
-  <!-- Giriş ekranı -->
-  <div id="gate" class="signin-wrap">
-    <div class="lock">🔒</div>
-    <div>Bu paneli görmek için Google hesabınla giriş yap.</div>
-    <div id="gsi-button"></div>
-    <div class="status" id="gate-status"></div>
-  </div>
-
-  <!-- Dashboard -->
-  <div id="app" class="hidden">
-    <div class="controls">
+  <div class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div><h1>Tiny Bat Games</h1><div class="sub">Analytics · tüm oyunlar</div></div>
+    </div>
+    <div class="spacer"></div>
+    <div id="controls" class="hidden" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
       <select id="range">
         <option value="today">Bugün</option>
         <option value="yesterday">Dün</option>
@@ -87,169 +109,199 @@
         <option value="28daysAgo" selected>Son 28 gün</option>
         <option value="90daysAgo">Son 90 gün</option>
       </select>
-      <button id="load">Yenile</button>
+      <button id="load" class="primary">Yenile</button>
       <span class="who" id="who"></span>
-      <button id="logout" class="ghost" style="margin-left:auto">Çıkış</button>
+      <button id="logout">Çıkış</button>
     </div>
+  </div>
 
+  <div id="gate" class="gate">
+    <div class="lock">🔒</div>
+    <h2>Tiny Bat Games Analytics</h2>
+    <p>Paneli görmek için yetkili Google hesabınla giriş yap.</p>
+    <button class="gbtn" id="signin">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" />
+      Google ile giriş yap
+    </button>
+    <div class="status" id="gate-status"></div>
+  </div>
+
+  <div id="app" class="hidden">
     <div class="status" id="status"></div>
-
-    <div class="cards hidden" id="cards">
-      <div class="card"><div class="label">Toplam Aktif Kullanıcı</div><div class="value" id="t-users">0</div></div>
-      <div class="card"><div class="label">Toplam Oturum</div><div class="value" id="t-sessions">0</div></div>
-      <div class="card"><div class="label">Toplam Olay</div><div class="value" id="t-events">0</div></div>
-      <div class="card"><div class="label">Property Sayısı</div><div class="value" id="t-count">0</div></div>
+    <div class="hero">
+      <div class="glow"></div>
+      <div class="label">Gelir hedefi</div>
+      <div class="target">$1.000.000 <small>hedef</small></div>
+      <div class="bar"><span id="goal-bar" style="width:0%"></span></div>
+      <div class="legend"><span class="earned" id="goal-earned">$0</span><span class="pct" id="goal-pct">%0 tamamlandı</span></div>
     </div>
-
-    <table id="table" class="hidden">
-      <thead>
-        <tr>
-          <th>Property</th>
-          <th>Hesap</th>
-          <th class="num">Aktif Kullanıcı</th>
-          <th class="num">Oturum</th>
-          <th class="num">Olay</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-
+    <div class="grid row-live">
+      <div class="live">
+        <div class="top"><span class="pulse"></span> şu an oynayan</div>
+        <div class="big" id="live-users">0</div>
+        <div class="cap">tüm oyunlarda canlı kullanıcı · son ~30 dk</div>
+      </div>
+      <div class="grid stats">
+        <div class="stat"><div class="k"><span class="ic" style="background:#1c2740;color:#9fb4ff">👥</span> Aktif kullanıcı</div><div class="v" id="s-active">0</div><div class="vsub" id="s-new">0 yeni</div></div>
+        <div class="stat"><div class="k"><span class="ic" style="background:#16312a;color:#7fe7c4">⏱️</span> Playtime</div><div class="v" id="s-playtime">0 sa</div><div class="vsub" id="s-playavg">ort. 0 dk/kullanıcı</div></div>
+        <div class="stat"><div class="k"><span class="ic" style="background:#2a1f3a;color:#c4b5fd">🔁</span> Retention</div><div class="v" id="s-retention">%0</div><div class="vsub">geri dönen kullanıcı oranı</div></div>
+        <div class="stat"><div class="k"><span class="ic" style="background:#332a16;color:#fcd34d">💰</span> Gelir (dönem)</div><div class="v" id="s-revenue">$0</div><div class="vsub">seçili tarih aralığı</div></div>
+        <div class="stat"><div class="k"><span class="ic" style="background:#241f30;color:#a78bfa">🎮</span> Oturum</div><div class="v" id="s-sessions">0</div><div class="vsub" id="s-events">0 olay</div></div>
+        <div class="stat"><div class="k"><span class="ic" style="background:#1c2740;color:#9fb4ff">📦</span> Oyun sayısı</div><div class="v" id="s-count">0</div><div class="vsub">otomatik bulundu</div></div>
+      </div>
+    </div>
+    <div class="grid panels">
+      <div class="panel"><h3>En çok oynanan ülkeler</h3><div id="countries"></div></div>
+      <div class="panel" style="padding:18px 12px;">
+        <h3 style="padding:0 8px;">Oyun bazında</h3>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Oyun</th><th class="num">Canlı</th><th class="num">Aktif</th><th class="num">Playtime</th><th class="num">Gelir</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     <div class="meta" id="meta"></div>
   </div>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</div>
+
   <script>
-    // ====== AYAR: iki değeri kendine göre doldur ======
+    // ====== AYAR ======
     const API_BASE = 'https://ga4-dashboard-lime.vercel.app/api/analytics';
     const GOOGLE_CLIENT_ID = '450661612153-ove6rgoiqb3ojgraiokd8jh8d4jiviso.apps.googleusercontent.com';
-    // ==================================================
+    // Bu sayfanın tam adresi (Google Cloud > Authorized redirect URIs'e EKLENMELİ).
+    const REDIRECT_URI = location.origin + location.pathname;
+    // ==================
 
     const $ = (id) => document.getElementById(id);
-    const fmt = (n) => Number(n || 0).toLocaleString('tr-TR');
+    const fmtInt = (n) => Math.round(Number(n || 0)).toLocaleString('tr-TR');
+    const fmtUSD = (n) => '$' + Number(n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtPct = (n) => '%' + Number(n || 0).toLocaleString('tr-TR', { maximumFractionDigits: 2 });
+    const hours = (sec) => Math.round(Number(sec || 0) / 3600);
+    const FLAGS = { 'Uzbekistan':'🇺🇿','India':'🇮🇳','Russia':'🇷🇺','Türkiye':'🇹🇷','Turkey':'🇹🇷','Brazil':'🇧🇷','United States':'🇺🇸','Germany':'🇩🇪','France':'🇫🇷','United Kingdom':'🇬🇧','Indonesia':'🇮🇩','Pakistan':'🇵🇰','Egypt':'🇪🇬','Mexico':'🇲🇽','Iran':'🇮🇷','Ukraine':'🇺🇦','Vietnam':'🇻🇳','Philippines':'🇵🇭','Bangladesh':'🇧🇩','Nigeria':'🇳🇬','Spain':'🇪🇸','Italy':'🇮🇹','Poland':'🇵🇱','Saudi Arabia':'🇸🇦','Kazakhstan':'🇰🇿','Azerbaijan':'🇦🇿' };
+    const flag = (c) => FLAGS[c] || '🌍';
+
     let idToken = null;
+    let timer = null;
 
-    // ---- Google Sign-In ----
-    window.onload = function () {
-      if (GOOGLE_CLIENT_ID.includes('YOUR_CLIENT_ID')) {
-        $('gate-status').textContent = 'index.html içindeki GOOGLE_CLIENT_ID değerini doldur.';
-        return;
-      }
-      google.accounts.id.initialize({
+    // ---- Redirect-based Google Sign-In (no popup, no COOP issues) ----
+    function rand() {
+      const a = new Uint8Array(16); crypto.getRandomValues(a);
+      return Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('');
+    }
+    function beginLogin() {
+      const nonce = rand();
+      sessionStorage.setItem('ga_nonce', nonce);
+      const params = new URLSearchParams({
         client_id: GOOGLE_CLIENT_ID,
-        callback: onSignIn,
-        auto_select: true,
+        redirect_uri: REDIRECT_URI,
+        response_type: 'id_token',
+        scope: 'openid email profile',
+        nonce: nonce,
+        prompt: 'select_account',
       });
-      google.accounts.id.renderButton($('gsi-button'), {
-        theme: 'filled_blue', size: 'large', text: 'signin_with', shape: 'pill',
-      });
-      google.accounts.id.prompt(); // One Tap
-    };
-
-    function onSignIn(response) {
-      idToken = response.credential; // Google imzalı JWT (ID token)
-      $('gate').classList.add('hidden');
-      $('app').classList.remove('hidden');
-      // Token'dan e-postayı göster (sadece görsel; doğrulama backend'de).
-      try {
-        const payload = JSON.parse(atob(idToken.split('.')[1]));
-        $('who').textContent = payload.email || '';
-      } catch (e) {}
-      load();
+      location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
     }
-
-    function logout() {
-      idToken = null;
-      google.accounts.id.disableAutoSelect();
-      $('app').classList.add('hidden');
-      $('gate').classList.remove('hidden');
-      $('cards').classList.add('hidden');
-      $('table').classList.add('hidden');
+    function tokenExp(tok) {
+      try { return JSON.parse(atob(tok.split('.')[1])).exp * 1000; } catch (e) { return 0; }
     }
-
-    // ---- Veri çekme ----
-    async function load() {
-      if (!idToken) { logout(); return; }
-      if (API_BASE.includes('YOUR-VERCEL-PROJECT')) {
-        setStatus('index.html içindeki API_BASE değerini doldur.', true);
-        return;
+    function captureToken() {
+      // 1) Geri dönüşte URL fragment'inde id_token gelir.
+      if (location.hash && location.hash.indexOf('id_token=') !== -1) {
+        const h = new URLSearchParams(location.hash.slice(1));
+        const tok = h.get('id_token');
+        history.replaceState(null, '', REDIRECT_URI); // URL'i temizle
+        if (tok && tokenExp(tok) > Date.now()) {
+          sessionStorage.setItem('ga_token', tok);
+          return tok;
+        }
       }
+      // 2) Daha önce alınmış, süresi geçmemiş token varsa kullan.
+      const saved = sessionStorage.getItem('ga_token');
+      if (saved && tokenExp(saved) > Date.now()) return saved;
+      sessionStorage.removeItem('ga_token');
+      return null;
+    }
 
-      setStatus('Yükleniyor…');
-      $('load').disabled = true;
+    function init() {
+      idToken = captureToken();
+      if (idToken) showApp(); else showGate();
+    }
+    function showGate() {
+      $('app').classList.add('hidden'); $('controls').classList.add('hidden');
+      $('gate').classList.remove('hidden');
+    }
+    function showApp() {
+      $('gate').classList.add('hidden'); $('app').classList.remove('hidden'); $('controls').classList.remove('hidden');
+      try { const p = JSON.parse(atob(idToken.split('.')[1])); $('who').innerHTML = '<span class="av">' + (p.email || '?')[0].toUpperCase() + '</span>' + (p.email || ''); } catch (e) {}
+      load();
+      timer = setInterval(load, 60000);
+    }
+    function logout() {
+      idToken = null; if (timer) clearInterval(timer);
+      sessionStorage.removeItem('ga_token');
+      showGate();
+    }
 
+    async function load() {
+      if (!idToken) { showGate(); return; }
+      if (tokenExp(idToken) <= Date.now()) { setStatus('Oturum süresi doldu, tekrar giriş yap.', true); logout(); return; }
+      setStatus('Yükleniyor…'); $('load').disabled = true;
       const url = new URL(API_BASE);
       url.searchParams.set('startDate', $('range').value);
       url.searchParams.set('endDate', 'today');
-
       try {
-        const res = await fetch(url.toString(), {
-          headers: { 'Authorization': 'Bearer ' + idToken },
-        });
+        const res = await fetch(url.toString(), { headers: { 'Authorization': 'Bearer ' + idToken } });
         const data = await res.json();
-        if (res.status === 401) {
-          setStatus('Oturum süresi doldu, tekrar giriş yap.', true);
-          logout();
-          return;
-        }
-        if (res.status === 403) {
-          setStatus('Bu Google hesabının erişim izni yok.', true);
-          return;
-        }
+        if (res.status === 401) { setStatus('Oturum süresi doldu, tekrar giriş yap.', true); logout(); return; }
+        if (res.status === 403) { setStatus('Bu Google hesabının erişim izni yok.', true); return; }
         if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-        render(data);
-        setStatus('');
-      } catch (e) {
-        setStatus('Hata: ' + e.message, true);
-        $('cards').classList.add('hidden');
-        $('table').classList.add('hidden');
-      } finally {
-        $('load').disabled = false;
-      }
+        render(data); setStatus('');
+      } catch (e) { setStatus('Hata: ' + e.message, true); }
+      finally { $('load').disabled = false; }
     }
 
     function render(data) {
-      $('t-users').textContent = fmt(data.totals.activeUsers);
-      $('t-sessions').textContent = fmt(data.totals.sessions);
-      $('t-events').textContent = fmt(data.totals.eventCount);
-      $('t-count').textContent = fmt(data.propertyCount);
-      $('cards').classList.remove('hidden');
-
+      const t = data.totals;
+      const pct = Math.min(100, data.goal.pct);
+      $('goal-bar').style.width = Math.max(0.4, pct) + '%';
+      $('goal-earned').textContent = fmtUSD(data.goal.earned) + ' kazanıldı';
+      $('goal-pct').textContent = fmtPct(data.goal.pct) + ' tamamlandı';
+      $('live-users').textContent = fmtInt(t.liveUsers);
+      $('s-active').textContent = fmtInt(t.activeUsers);
+      $('s-new').textContent = fmtInt(t.newUsers) + ' yeni';
+      $('s-playtime').textContent = fmtInt(hours(t.engagementSeconds)) + ' sa';
+      const avgMin = t.activeUsers > 0 ? Math.round(t.engagementSeconds / t.activeUsers / 60) : 0;
+      $('s-playavg').textContent = 'ort. ' + avgMin + ' dk/kullanıcı';
+      $('s-retention').textContent = fmtPct(data.retentionRate * 100);
+      $('s-revenue').textContent = fmtUSD(t.revenue);
+      $('s-sessions').textContent = fmtInt(t.sessions);
+      $('s-events').textContent = fmtInt(t.eventCount) + ' olay';
+      $('s-count').textContent = fmtInt(data.propertyCount);
+      const cmax = data.topCountries.length ? data.topCountries[0].activeUsers : 1;
+      $('countries').innerHTML = data.topCountries.length ? data.topCountries.map((c) => `
+        <div class="country"><span class="flag">${flag(c.country)}</span><span class="nm">${esc(c.country)}</span>
+          <span class="cbar"><span style="width:${Math.max(4, (c.activeUsers / cmax) * 100)}%"></span></span>
+          <span class="cn">${fmtInt(c.activeUsers)}</span></div>`).join('') : '<div class="zero" style="font-size:13px">Veri yok</div>';
       const rows = [...data.properties].sort((a, b) => (b.activeUsers || 0) - (a.activeUsers || 0));
       $('tbody').innerHTML = rows.map((p) => {
-        if (!p.ok) {
-          return `<tr>
-            <td>${esc(p.displayName)}</td>
-            <td>${esc(p.account)}</td>
-            <td colspan="3" class="badge-err">Hata: ${esc(p.error || 'bilinmiyor')}</td>
-          </tr>`;
-        }
-        return `<tr>
-          <td>${esc(p.displayName)}</td>
-          <td>${esc(p.account)}</td>
-          <td class="num">${fmt(p.activeUsers)}</td>
-          <td class="num">${fmt(p.sessions)}</td>
-          <td class="num">${fmt(p.eventCount)}</td>
-        </tr>`;
+        if (!p.ok) return `<tr><td class="game">${esc(p.displayName)}</td><td colspan="4" class="badge-err">Hata</td></tr>`;
+        const live = p.liveUsers > 0 ? `<span class="livecell">${fmtInt(p.liveUsers)}</span>` : '<span class="zero">0</span>';
+        const rev = p.revenue > 0 ? fmtUSD(p.revenue) : '<span class="zero">$0</span>';
+        return `<tr><td class="game">${esc(p.displayName)}</td><td class="num">${live}</td><td class="num">${fmtInt(p.activeUsers)}</td><td class="num">${fmtInt(hours(p.engagementSeconds))} sa</td><td class="num">${rev}</td></tr>`;
       }).join('');
-      $('table').classList.remove('hidden');
-
-      $('meta').textContent =
-        `Tarih aralığı: ${data.dateRange.startDate} → ${data.dateRange.endDate} · ` +
-        `Oluşturulma: ${new Date(data.generatedAt).toLocaleString('tr-TR')}`;
+      $('meta').textContent = 'Aralık: ' + data.dateRange.startDate + ' → bugün · güncellendi ' + new Date(data.generatedAt).toLocaleTimeString('tr-TR') + ' · 60 sn\'de bir tazelenir';
     }
 
-    function setStatus(msg, isErr) {
-      const el = $('status');
-      el.textContent = msg;
-      el.style.color = isErr ? 'var(--err)' : 'var(--muted)';
-    }
-    function esc(s) {
-      return String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
-        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    }
+    function setStatus(m, err) { const e = $('status'); e.textContent = m || ''; e.style.color = err ? '#f87171' : 'var(--muted)'; }
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
 
+    $('signin').addEventListener('click', beginLogin);
     $('load').addEventListener('click', load);
     $('logout').addEventListener('click', logout);
+    init();
   </script>
 </body>
 </html>
