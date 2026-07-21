@@ -79,6 +79,7 @@
     tbody tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: rgba(255,255,255,.02); }
     .game { font-weight: 600; }
+    .game-country { font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 3px; white-space: nowrap; }
     .livecell { color: var(--green); font-weight: 700; }
     .zero { color: var(--faint); }
     .badge-err { color: #f87171; font-size: 12px; }
@@ -300,7 +301,9 @@
         const rev = p.revenue > 0 ? fmtUSD(p.revenue) : '<span class="zero">$0</span>';
         const pRet = p.activeUsers > 0 ? fmtPct(p.retentionRate * 100) : '<span class="zero">—</span>';
         const pPlay = p.activeUsers > 0 ? fmtInt(Math.round(p.engagementSeconds / p.activeUsers / 60)) + ' dk' : '<span class="zero">0 dk</span>';
-        return `<tr><td class="game">${esc(p.displayName)}</td><td class="num">${live}</td><td class="num">${fmtInt(p.activeUsers)}</td><td class="num">${fmtInt(p.avgDailyActiveUsers)}</td><td class="num">${pRet}</td><td class="num">${pPlay}</td><td class="num">${rev}</td></tr>`;
+        const topC = p.topCountries && p.topCountries[0] ? p.topCountries[0].country : null;
+        const gameCell = esc(p.displayName) + (topC ? `<div class="game-country">${flag(topC)} en çok: ${esc(topC)}</div>` : '');
+        return `<tr><td class="game">${gameCell}</td><td class="num">${live}</td><td class="num">${fmtInt(p.activeUsers)}</td><td class="num">${fmtInt(p.avgDailyActiveUsers)}</td><td class="num">${pRet}</td><td class="num">${pPlay}</td><td class="num">${rev}</td></tr>`;
       }).join('');
       $('meta').textContent = 'Aralık: ' + data.dateRange.startDate + ' → bugün · güncellendi ' + new Date(data.generatedAt).toLocaleTimeString('tr-TR') + ' · 60 sn\'de bir tazelenir';
     }
