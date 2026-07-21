@@ -152,8 +152,7 @@
       </div>
       <div class="grid stats">
         <div class="stat"><div class="k"><span class="ic" style="background:#1c2740;color:#9fb4ff">👥</span> Aktif kullanıcı</div><div class="v" id="s-active">0</div><div class="vsub" id="s-new">0 yeni</div></div>
-        <div class="stat"><div class="k"><span class="ic" style="background:#16312a;color:#7fe7c4">⏱️</span> Playtime</div><div class="v" id="s-playtime">0 sa</div><div class="vsub" id="s-playavg">ort. 0 dk/kullanıcı</div></div>
-        <div class="stat"><div class="k"><span class="ic" style="background:#2a1f3a;color:#c4b5fd">🔁</span> Retention</div><div class="v" id="s-retention">%0</div><div class="vsub">geri dönen kullanıcı oranı</div></div>
+        <div class="stat"><div class="k"><span class="ic" style="background:#16312a;color:#7fe7c4">⏱️</span> Ort. playtime</div><div class="v" id="s-playtime">0 dk</div><div class="vsub" id="s-playavg">kullanıcı başına</div></div>
         <div class="stat"><div class="k"><span class="ic" style="background:#332a16;color:#fcd34d">💰</span> Gelir (dönem)</div><div class="v" id="s-revenue">$0</div><div class="vsub">seçili tarih aralığı</div></div>
         <div class="stat"><div class="k"><span class="ic" style="background:#241f30;color:#a78bfa">🎮</span> Oturum</div><div class="v" id="s-sessions">0</div><div class="vsub" id="s-events">0 olay</div></div>
         <div class="stat"><div class="k"><span class="ic" style="background:#1c2740;color:#9fb4ff">📦</span> Oyun sayısı</div><div class="v" id="s-count">0</div><div class="vsub">otomatik bulundu</div></div>
@@ -165,7 +164,7 @@
         <h3 style="padding:0 8px;">Oyun bazında</h3>
         <div style="overflow-x:auto;">
           <table>
-            <thead><tr><th>Oyun</th><th class="num">Canlı</th><th class="num">Aktif</th><th class="num">Ort. DAU</th><th class="num">Playtime</th><th class="num">Gelir</th></tr></thead>
+            <thead><tr><th>Oyun</th><th class="num">Canlı</th><th class="num">Aktif</th><th class="num">Ort. DAU</th><th class="num">Retention</th><th class="num">Ort. playtime</th><th class="num">Gelir</th></tr></thead>
             <tbody id="tbody"></tbody>
           </table>
         </div>
@@ -282,10 +281,9 @@
       $('dau-users').textContent = fmtInt(t.dau);
       $('s-active').textContent = fmtInt(t.activeUsers);
       $('s-new').textContent = fmtInt(t.newUsers) + ' yeni';
-      $('s-playtime').textContent = fmtInt(hours(t.engagementSeconds)) + ' sa';
-      const avgMin = t.activeUsers > 0 ? Math.round(t.engagementSeconds / t.activeUsers / 60) : 0;
-      $('s-playavg').textContent = 'ort. ' + avgMin + ' dk/kullanıcı';
-      $('s-retention').textContent = fmtPct(data.retentionRate * 100);
+      const avgMinAll = t.activeUsers > 0 ? Math.round(t.engagementSeconds / t.activeUsers / 60) : 0;
+      $('s-playtime').textContent = fmtInt(avgMinAll) + ' dk';
+      $('s-playavg').textContent = 'kullanıcı başına · toplam ' + fmtInt(hours(t.engagementSeconds)) + ' sa';
       $('s-revenue').textContent = fmtUSD(t.revenue);
       $('s-sessions').textContent = fmtInt(t.sessions);
       $('s-events').textContent = fmtInt(t.eventCount) + ' olay';
@@ -297,10 +295,12 @@
           <span class="cn">${fmtInt(c.activeUsers)}</span></div>`).join('') : '<div class="zero" style="font-size:13px">Veri yok</div>';
       const rows = [...data.properties].sort((a, b) => (b.activeUsers || 0) - (a.activeUsers || 0));
       $('tbody').innerHTML = rows.map((p) => {
-        if (!p.ok) return `<tr><td class="game">${esc(p.displayName)}</td><td colspan="5" class="badge-err">Hata</td></tr>`;
+        if (!p.ok) return `<tr><td class="game">${esc(p.displayName)}</td><td colspan="6" class="badge-err">Hata</td></tr>`;
         const live = p.liveUsers > 0 ? `<span class="livecell">${fmtInt(p.liveUsers)}</span>` : '<span class="zero">0</span>';
         const rev = p.revenue > 0 ? fmtUSD(p.revenue) : '<span class="zero">$0</span>';
-        return `<tr><td class="game">${esc(p.displayName)}</td><td class="num">${live}</td><td class="num">${fmtInt(p.activeUsers)}</td><td class="num">${fmtInt(p.avgDailyActiveUsers)}</td><td class="num">${fmtInt(hours(p.engagementSeconds))} sa</td><td class="num">${rev}</td></tr>`;
+        const pRet = p.activeUsers > 0 ? fmtPct(p.retentionRate * 100) : '<span class="zero">—</span>';
+        const pPlay = p.activeUsers > 0 ? fmtInt(Math.round(p.engagementSeconds / p.activeUsers / 60)) + ' dk' : '<span class="zero">0 dk</span>';
+        return `<tr><td class="game">${esc(p.displayName)}</td><td class="num">${live}</td><td class="num">${fmtInt(p.activeUsers)}</td><td class="num">${fmtInt(p.avgDailyActiveUsers)}</td><td class="num">${pRet}</td><td class="num">${pPlay}</td><td class="num">${rev}</td></tr>`;
       }).join('');
       $('meta').textContent = 'Aralık: ' + data.dateRange.startDate + ' → bugün · güncellendi ' + new Date(data.generatedAt).toLocaleTimeString('tr-TR') + ' · 60 sn\'de bir tazelenir';
     }
